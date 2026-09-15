@@ -1,0 +1,52 @@
+.skaut-burza-form p {
+	margin: 0 0 1em;
+}
+
+.skaut-burza-form label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25em;
+}
+
+.skaut-burza-form input[type="text"],
+.skaut-burza-form input[type="tel"],
+.skaut-burza-form input[type="email"],
+.skaut-burza-form select,
+.skaut-burza-form textarea {
+	width: 100%;
+	max-width: 32em;
+	box-sizing: border-box;
+	padding: 0.5em;
+}
+
+.skaut-burza-fotky-stavajici {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1em;
+	list-style: none;
+	padding: 0;
+}
+
+.skaut-burza-fotky-stavajici li {
+	text-align: center;
+}
+
+.skaut-burza-fotky-info {
+	display: block;
+	font-size: 0.9em;
+	color: #666;
+}
+
+.skaut-burza-chyby {
+	color: #b32d2e;
+	border: 1px solid #b32d2e;
+	padding: 0.75em 1em;
+	margin-bottom: 1em;
+}
+
+.skaut-burza-ok {
+	color: #2e7d32;
+	border: 1px solid #2e7d32;
+	padding: 0.75em 1em;
+	margin-bottom: 1em;
+}

@@ -12,9 +12,12 @@ define( 'SKAUT_BURZA_VERSION', '1.0.0' );
 define( 'SKAUT_BURZA_FILE', __FILE__ );
 define( 'SKAUT_BURZA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SKAUT_BURZA_URL', plugin_dir_url( __FILE__ ) );
+define( 'SKAUT_BURZA_RATE_LIMIT_SEKUND', 30 );
 
 require_once SKAUT_BURZA_DIR . 'includes/cpt.php';
 require_once SKAUT_BURZA_DIR . 'includes/meta.php';
+require_once SKAUT_BURZA_DIR . 'includes/uploads.php';
+require_once SKAUT_BURZA_DIR . 'includes/shortcode-formular.php';
 
 final class SkautBurza {
 
@@ -28,6 +31,9 @@ final class SkautBurza {
 		add_action( 'init', 'skaut_burza_register_post_statuses' );
 		add_action( 'init', 'skaut_burza_seed_kategorie', 20 );
 		add_action( 'init', 'skaut_burza_register_meta', 20 );
+
+		add_shortcode( 'burza_formular', 'skaut_burza_shortcode_formular' );
+		add_action( 'template_redirect', 'skaut_burza_handle_formular_submit' );
 	}
 
 	public function load_textdomain(): void {

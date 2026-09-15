@@ -21,7 +21,7 @@ function skaut_burza_sanitize_fotky( $value ): array {
 	if ( ! is_array( $value ) ) return [];
 	$ids = array_map( 'absint', $value );
 	$ids = array_filter( $ids );
-	return array_slice( array_values( $ids ), 0, 3 );
+	return array_slice( array_values( $ids ), 0, skaut_burza_max_fotek() );
 }
 
 /**
