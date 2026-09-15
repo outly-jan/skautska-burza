@@ -13,14 +13,28 @@ function skaut_burza_max_vyzev(): int {
 	return (int) get_option( 'skaut_burza_max_vyzev', 3 );
 }
 
+function skaut_burza_pridat_cron_interval( array $schedules ): array {
+	if ( ! isset( $schedules['skaut_burza_mesicne'] ) ) {
+		$schedules['skaut_burza_mesicne'] = [
+			'interval' => 30 * DAY_IN_SECONDS,
+			'display'  => __( 'Jednou měsíčně (úklid burzy)', 'skaut-burza' ),
+		];
+	}
+	return $schedules;
+}
+
 function skaut_burza_naplanovat_cron(): void {
 	if ( ! wp_next_scheduled( 'skaut_burza_kontrola' ) ) {
 		wp_schedule_event( time(), 'daily', 'skaut_burza_kontrola' );
+	}
+	if ( ! wp_next_scheduled( 'skaut_burza_uklid' ) ) {
+		wp_schedule_event( time(), 'skaut_burza_mesicne', 'skaut_burza_uklid' );
 	}
 }
 
 function skaut_burza_odplanovat_cron(): void {
 	wp_clear_scheduled_hook( 'skaut_burza_kontrola' );
+	wp_clear_scheduled_hook( 'skaut_burza_uklid' );
 }
 
 /**
@@ -69,5 +83,29 @@ function skaut_burza_denni_kontrola(): void {
 			skaut_burza_archivovat( $post_id );
 			skaut_burza_odeslat_info_archivace( $post_id );
 		}
+	}
+}
+
+/**
+ * Měsíční úklid — archivované inzeráty starší 6 měsíců smazat i s fotkami.
+ * "Starší" se počítá od post_modified, protože přesun do archivu (ať už
+ * ruční přes [burza_moje], nebo cronem) vždy tenhle sloupec aktualizuje.
+ */
+function skaut_burza_mesicni_uklid(): void {
+	$dotaz = new WP_Query( [
+		'post_type'      => 'burza_inzerat',
+		'post_status'    => 'burza_archiv',
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+		'date_query'     => [ [
+			'column' => 'post_modified',
+			'before' => '6 months ago',
+		] ],
+	] );
+
+	foreach ( $dotaz->posts as $post_id ) {
+		skaut_burza_smaz_fotky( $post_id );
+		wp_delete_post( $post_id, true );
 	}
 }

@@ -25,6 +25,7 @@ require_once SKAUT_BURZA_DIR . 'includes/shortcode-moje.php';
 require_once SKAUT_BURZA_DIR . 'includes/email.php';
 require_once SKAUT_BURZA_DIR . 'includes/cron.php';
 require_once SKAUT_BURZA_DIR . 'includes/admin.php';
+require_once SKAUT_BURZA_DIR . 'includes/privacy.php';
 
 final class SkautBurza {
 
@@ -58,7 +59,9 @@ final class SkautBurza {
 		add_action( 'save_post', 'skaut_burza_vycistit_stranka_cache' );
 
 		add_action( 'template_redirect', 'skaut_burza_handle_potvrzovaci_endpoint' );
+		add_filter( 'cron_schedules', 'skaut_burza_pridat_cron_interval' );
 		add_action( 'skaut_burza_kontrola', 'skaut_burza_denni_kontrola' );
+		add_action( 'skaut_burza_uklid', 'skaut_burza_mesicni_uklid' );
 
 		add_filter( 'manage_burza_inzerat_posts_columns', 'skaut_burza_admin_sloupce' );
 		add_action( 'manage_burza_inzerat_posts_custom_column', 'skaut_burza_admin_sloupec_obsah', 10, 2 );
@@ -73,6 +76,9 @@ final class SkautBurza {
 
 		add_action( 'admin_menu', 'skaut_burza_admin_menu' );
 		add_action( 'admin_init', 'skaut_burza_register_settings' );
+
+		add_filter( 'wp_privacy_personal_data_exporters', 'skaut_burza_register_privacy_exporter' );
+		add_filter( 'wp_privacy_personal_data_erasers', 'skaut_burza_register_privacy_eraser' );
 	}
 
 	public function load_textdomain(): void {
