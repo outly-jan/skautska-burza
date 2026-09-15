@@ -135,3 +135,11 @@ function skaut_burza_je_autor_nebo_admin( int $post_id ): bool {
 	$post = get_post( $post_id );
 	return $post && (int) $post->post_author === get_current_user_id();
 }
+
+/**
+ * Přesun do archivu — používá jak ruční akce "označit jako prodané"
+ * v [burza_moje], tak denní cron po třech nezodpovězených výzvách.
+ */
+function skaut_burza_archivovat( int $post_id ): void {
+	wp_update_post( [ 'ID' => $post_id, 'post_status' => 'burza_archiv' ] );
+}

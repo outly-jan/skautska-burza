@@ -21,6 +21,7 @@ require_once SKAUT_BURZA_DIR . 'includes/shortcode-formular.php';
 require_once SKAUT_BURZA_DIR . 'includes/template.php';
 require_once SKAUT_BURZA_DIR . 'includes/visibility.php';
 require_once SKAUT_BURZA_DIR . 'includes/shortcode-vypis.php';
+require_once SKAUT_BURZA_DIR . 'includes/shortcode-moje.php';
 
 final class SkautBurza {
 
@@ -48,6 +49,10 @@ final class SkautBurza {
 
 		add_action( 'pre_get_posts', 'skaut_burza_vyloucit_z_feedu' );
 		add_filter( 'wp_sitemaps_post_types', 'skaut_burza_vyloucit_ze_sitemapy' );
+
+		add_shortcode( 'burza_moje', 'skaut_burza_shortcode_moje' );
+		add_action( 'template_redirect', 'skaut_burza_handle_moje_akce' );
+		add_action( 'save_post', 'skaut_burza_vycistit_stranka_cache' );
 	}
 
 	public function load_textdomain(): void {

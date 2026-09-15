@@ -104,6 +104,35 @@ function skaut_burza_prihlaseni_vyzva_html(): string {
 	) . '</p>';
 }
 
+/**
+ * Najde stránku, na které je vložený daný shortcode (např. [burza_formular]),
+ * ať se na ni dá z [burza_moje] odkázat na úpravu bez nutnosti ji ručně
+ * nastavovat. Výsledek se cachuje přes transient.
+ */
+function skaut_burza_stranka_s_shortcode( string $shortcode ): int {
+	$cache_key = 'skaut_burza_stranka_' . $shortcode;
+	$cached    = get_transient( $cache_key );
+	if ( false !== $cached ) return (int) $cached;
+
+	global $wpdb;
+	$like = '%' . $wpdb->esc_like( '[' . $shortcode ) . '%';
+	$id   = (int) $wpdb->get_var( $wpdb->prepare(
+		"SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_content LIKE %s LIMIT 1",
+		$like
+	) );
+
+	set_transient( $cache_key, $id, HOUR_IN_SECONDS );
+	return $id;
+}
+
+/**
+ * Zruší cache z skaut_burza_stranka_s_shortcode() při uložení jakékoli
+ * stránky, ať se hned projeví přesun [burza_formular] na jinou stránku.
+ */
+function skaut_burza_vycistit_stranka_cache(): void {
+	delete_transient( 'skaut_burza_stranka_burza_formular' );
+}
+
 function skaut_burza_template_include( string $template ): string {
 	if ( ! is_singular( 'burza_inzerat' ) ) return $template;
 

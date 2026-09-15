@@ -137,3 +137,30 @@
 	color: #666;
 	margin-top: 2em;
 }
+
+.skaut-burza-moje-seznam {
+	list-style: none;
+	padding: 0;
+}
+
+.skaut-burza-moje-polozka {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75em;
+	padding: 0.75em 0;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.skaut-burza-moje-cena {
+	font-weight: 600;
+}
+
+.skaut-burza-moje-akce {
+	margin-left: auto;
+	font-size: 0.9em;
+}
+
+.skaut-burza-moje-archiv {
+	opacity: 0.75;
+}

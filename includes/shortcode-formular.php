@@ -113,13 +113,15 @@ function skaut_burza_handle_formular_submit(): void {
 		'post_type'    => 'burza_inzerat',
 		'post_title'   => $nazev,
 		'post_content' => $popis,
-		'post_status'  => 'publish',
 	];
 
 	if ( $je_editace ) {
+		// post_status se přes formulář nemění — o rezervaci/archivaci se starají
+		// akce v [burza_moje], editace obsahu by je neměla tiše rušit.
 		$post_data['ID'] = $post_id;
 		$vysledek_id     = wp_update_post( $post_data, true );
 	} else {
+		$post_data['post_status'] = 'publish';
 		$post_data['post_author'] = $user_id;
 		$vysledek_id              = wp_insert_post( $post_data, true );
 	}
