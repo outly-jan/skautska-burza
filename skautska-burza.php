@@ -24,6 +24,7 @@ require_once SKAUT_BURZA_DIR . 'includes/shortcode-vypis.php';
 require_once SKAUT_BURZA_DIR . 'includes/shortcode-moje.php';
 require_once SKAUT_BURZA_DIR . 'includes/email.php';
 require_once SKAUT_BURZA_DIR . 'includes/cron.php';
+require_once SKAUT_BURZA_DIR . 'includes/admin.php';
 
 final class SkautBurza {
 
@@ -58,6 +59,20 @@ final class SkautBurza {
 
 		add_action( 'template_redirect', 'skaut_burza_handle_potvrzovaci_endpoint' );
 		add_action( 'skaut_burza_kontrola', 'skaut_burza_denni_kontrola' );
+
+		add_filter( 'manage_burza_inzerat_posts_columns', 'skaut_burza_admin_sloupce' );
+		add_action( 'manage_burza_inzerat_posts_custom_column', 'skaut_burza_admin_sloupec_obsah', 10, 2 );
+		add_filter( 'manage_edit-burza_inzerat_sortable_columns', 'skaut_burza_admin_sortable_sloupce' );
+
+		add_action( 'restrict_manage_posts', 'skaut_burza_admin_filtr_kategorie' );
+		add_action( 'pre_get_posts', 'skaut_burza_admin_filtr_a_razeni_dotaz' );
+
+		add_filter( 'bulk_actions-edit-burza_inzerat', 'skaut_burza_admin_bulk_actions' );
+		add_filter( 'handle_bulk_actions-edit-burza_inzerat', 'skaut_burza_admin_handle_bulk_actions', 10, 3 );
+		add_action( 'admin_notices', 'skaut_burza_admin_bulk_notice' );
+
+		add_action( 'admin_menu', 'skaut_burza_admin_menu' );
+		add_action( 'admin_init', 'skaut_burza_register_settings' );
 	}
 
 	public function load_textdomain(): void {
