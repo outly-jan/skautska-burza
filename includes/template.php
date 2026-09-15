@@ -127,10 +127,12 @@ function skaut_burza_stranka_s_shortcode( string $shortcode ): int {
 
 /**
  * Zruší cache z skaut_burza_stranka_s_shortcode() při uložení jakékoli
- * stránky, ať se hned projeví přesun [burza_formular] na jinou stránku.
+ * stránky, ať se hned projeví přesun [burza_formular]/[burza_moje] na
+ * jinou stránku.
  */
 function skaut_burza_vycistit_stranka_cache(): void {
 	delete_transient( 'skaut_burza_stranka_burza_formular' );
+	delete_transient( 'skaut_burza_stranka_burza_moje' );
 }
 
 function skaut_burza_template_include( string $template ): string {

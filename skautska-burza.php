@@ -22,6 +22,8 @@ require_once SKAUT_BURZA_DIR . 'includes/template.php';
 require_once SKAUT_BURZA_DIR . 'includes/visibility.php';
 require_once SKAUT_BURZA_DIR . 'includes/shortcode-vypis.php';
 require_once SKAUT_BURZA_DIR . 'includes/shortcode-moje.php';
+require_once SKAUT_BURZA_DIR . 'includes/email.php';
+require_once SKAUT_BURZA_DIR . 'includes/cron.php';
 
 final class SkautBurza {
 
@@ -53,6 +55,9 @@ final class SkautBurza {
 		add_shortcode( 'burza_moje', 'skaut_burza_shortcode_moje' );
 		add_action( 'template_redirect', 'skaut_burza_handle_moje_akce' );
 		add_action( 'save_post', 'skaut_burza_vycistit_stranka_cache' );
+
+		add_action( 'template_redirect', 'skaut_burza_handle_potvrzovaci_endpoint' );
+		add_action( 'skaut_burza_kontrola', 'skaut_burza_denni_kontrola' );
 	}
 
 	public function load_textdomain(): void {
@@ -64,10 +69,12 @@ final class SkautBurza {
 		skaut_burza_register_taxonomy();
 		skaut_burza_register_post_statuses();
 		skaut_burza_seed_kategorie();
+		skaut_burza_naplanovat_cron();
 		flush_rewrite_rules();
 	}
 
 	public function deactivate(): void {
+		skaut_burza_odplanovat_cron();
 		flush_rewrite_rules();
 	}
 }
