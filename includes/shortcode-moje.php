@@ -39,6 +39,10 @@ function skaut_burza_handle_moje_akce(): void {
 			wp_update_post( [ 'ID' => $post_id, 'post_status' => 'burza_rezervovano' ] );
 			break;
 
+		case 'zrusit_rezervaci':
+			wp_update_post( [ 'ID' => $post_id, 'post_status' => 'publish' ] );
+			break;
+
 		case 'prodano':
 			skaut_burza_archivovat( $post_id );
 			break;
@@ -118,6 +122,13 @@ function skaut_burza_shortcode_moje( $atts ): string {
 
 		<h2><?php esc_html_e( 'Moje inzeráty', 'skaut-burza' ); ?></h2>
 
+		<p class="skaut-burza-napoveda-kratka"><?php echo esc_html( sprintf(
+			/* translators: 1: počet dní do první výzvy, 2: celková doba zveřejnění */
+			__( 'Inzerát je zveřejněný %2$s. Kliknutím na „prodloužit platnost“ (nebo potvrzením v e-mailu, který vám přijde %1$s po vložení) se doba počítá znovu od začátku. Po jejím uplynutí se inzerát přesune do archivu, odkud ho můžete znovu zveřejnit; archiv se po 6 měsících maže.', 'skaut-burza' ),
+			skaut_burza_dny_text( skaut_burza_dny_do_prvni_vyzvy() ),
+			skaut_burza_dny_text( skaut_burza_celkova_doba_zverejneni() )
+		) ); ?></p>
+
 		<?php if ( ! $aktivni->have_posts() ) : ?>
 			<p><?php esc_html_e( 'Zatím nemáte žádný aktivní inzerát.', 'skaut-burza' ); ?></p>
 		<?php else : ?>
@@ -127,6 +138,8 @@ function skaut_burza_shortcode_moje( $atts ): string {
 					$id          = get_the_ID();
 					$rezervovano = 'burza_rezervovano' === get_post_status();
 					$cena        = get_post_meta( $id, '_burza_cena', true );
+					$zbyva_dni   = skaut_burza_dni_do_archivace( $id );
+					$brzy        = $zbyva_dni <= skaut_burza_dny_mezi_vyzvami();
 					?>
 					<li class="skaut-burza-moje-polozka">
 						<a href="<?php the_permalink(); ?>"><strong><?php the_title(); ?></strong></a>
@@ -134,6 +147,15 @@ function skaut_burza_shortcode_moje( $atts ): string {
 							<span class="skaut-burza-stitek-rezervovano"><?php esc_html_e( 'Rezervováno', 'skaut-burza' ); ?></span>
 						<?php endif; ?>
 						<span class="skaut-burza-moje-cena"><?php echo esc_html( $cena ); ?></span>
+						<span class="skaut-burza-moje-platnost<?php echo $brzy ? ' skaut-burza-moje-platnost-brzy' : ''; ?>">
+							<?php
+							echo esc_html( $zbyva_dni > 0
+								/* translators: %s: počet dní, např. "5 dní" */
+								? sprintf( __( 'zveřejněno ještě %s', 'skaut-burza' ), skaut_burza_dny_text( $zbyva_dni ) )
+								: __( 'v nejbližších hodinách se přesune do archivu', 'skaut-burza' )
+							);
+							?>
+						</span>
 
 						<span class="skaut-burza-moje-akce">
 							<?php
@@ -144,6 +166,8 @@ function skaut_burza_shortcode_moje( $atts ): string {
 							}
 							if ( ! $rezervovano ) {
 								$odkazy[] = '<a href="' . esc_url( skaut_burza_moje_akce_url( 'rezervovat', $id ) ) . '">' . esc_html__( 'označit jako rezervované', 'skaut-burza' ) . '</a>';
+							} else {
+								$odkazy[] = '<a href="' . esc_url( skaut_burza_moje_akce_url( 'zrusit_rezervaci', $id ) ) . '">' . esc_html__( 'zrušit rezervaci', 'skaut-burza' ) . '</a>';
 							}
 							$odkazy[] = '<a href="' . esc_url( skaut_burza_moje_akce_url( 'prodano', $id ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Opravdu označit jako prodané a přesunout do archivu?', 'skaut-burza' ) ) . '\');">' . esc_html__( 'označit jako prodané', 'skaut-burza' ) . '</a>';
 							$odkazy[] = '<a href="' . esc_url( skaut_burza_moje_akce_url( 'prodlouzit', $id ) ) . '">' . esc_html__( 'prodloužit platnost', 'skaut-burza' ) . '</a>';
@@ -164,6 +188,12 @@ function skaut_burza_shortcode_moje( $atts ): string {
 					<?php $id = get_the_ID(); ?>
 					<li class="skaut-burza-moje-polozka">
 						<strong><?php the_title(); ?></strong>
+						<span class="skaut-burza-moje-platnost">
+							<?php
+							/* translators: %s: počet dní, např. "5 dní" */
+							echo esc_html( sprintf( __( 'smaže se za %s', 'skaut-burza' ), skaut_burza_dny_text( skaut_burza_dni_do_smazani( get_post() ) ) ) );
+							?>
+						</span>
 						<span class="skaut-burza-moje-akce">
 							<a href="<?php echo esc_url( skaut_burza_moje_akce_url( 'znovu_zverejnit', $id ) ); ?>"><?php esc_html_e( 'znovu zveřejnit', 'skaut-burza' ); ?></a>
 						</span>
