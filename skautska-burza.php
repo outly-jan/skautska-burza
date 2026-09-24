@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Skautská burza
  * Description: Burza použitého skautského oblečení a vybavení. Středisko Chlumec nad Cidlinou.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Text Domain: skaut-burza
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'SKAUT_BURZA_VERSION', '1.0.2' );
+define( 'SKAUT_BURZA_VERSION', '1.0.3' );
 define( 'SKAUT_BURZA_FILE', __FILE__ );
 define( 'SKAUT_BURZA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SKAUT_BURZA_URL', plugin_dir_url( __FILE__ ) );

@@ -62,6 +62,16 @@ function skaut_burza_verejna_data_html( WP_Post $post ): string {
 }
 
 /**
+ * Skutečné jméno a příjmení autora inzerátu z WP profilu (ne přezdívka ani
+ * zobrazované jméno). Prázdný řetězec, pokud v profilu nic vyplněno není.
+ */
+function skaut_burza_jmeno_autora( WP_Post $post ): string {
+	$autor = get_userdata( (int) $post->post_author );
+	if ( ! $autor ) return '';
+	return trim( $autor->first_name . ' ' . $autor->last_name );
+}
+
+/**
  * Blok jen pro přihlášené — popis, zbývající fotky, kontakty. Nekontroluje
  * oprávnění, to je na volajícím (AJAX handler ve visibility.php).
  */
@@ -71,6 +81,7 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 	$zbyvajici_fotky = array_slice( $fotky, 1 );
 	$telefon         = get_post_meta( $post->ID, '_burza_telefon', true );
 	$email           = get_post_meta( $post->ID, '_burza_email', true );
+	$prodavajici     = skaut_burza_jmeno_autora( $post );
 
 	ob_start();
 	?>
@@ -88,6 +99,9 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 		<?php endif; ?>
 
 		<ul class="skaut-burza-kontakty">
+			<?php if ( $prodavajici ) : ?>
+				<li><strong><?php esc_html_e( 'Prodává:', 'skaut-burza' ); ?></strong> <?php echo esc_html( $prodavajici ); ?></li>
+			<?php endif; ?>
 			<li><strong><?php esc_html_e( 'Telefon:', 'skaut-burza' ); ?></strong> <?php echo $telefon ? esc_html( $telefon ) : esc_html__( 'neuvedeno', 'skaut-burza' ); ?></li>
 			<li><strong><?php esc_html_e( 'E-mail:', 'skaut-burza' ); ?></strong> <?php echo $email ? esc_html( $email ) : esc_html__( 'neuvedeno', 'skaut-burza' ); ?></li>
 		</ul>
