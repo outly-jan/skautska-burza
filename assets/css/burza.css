@@ -75,11 +75,26 @@
 	padding: 0.75em;
 }
 
-.skaut-burza-dlazdice-foto img,
-.skaut-burza-foto-hlavni img {
+.skaut-burza-dlazdice-foto img {
 	width: 100%;
 	height: auto;
 	display: block;
+}
+
+.skaut-burza-detail {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 1.5em 1em;
+	box-sizing: border-box;
+}
+
+.skaut-burza-foto-hlavni img {
+	display: block;
+	width: auto;
+	max-width: 100%;
+	height: auto;
+	max-height: 75vh;
+	margin-bottom: 1em;
 }
 
 .skaut-burza-dlazdice-foto {

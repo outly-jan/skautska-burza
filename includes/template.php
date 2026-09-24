@@ -38,7 +38,7 @@ function skaut_burza_verejna_data_html( WP_Post $post ): string {
 		<?php endif; ?>
 
 		<?php if ( $prvni_foto ) : ?>
-			<div class="skaut-burza-foto-hlavni"><?php echo skaut_burza_foto_html( $prvni_foto, 'burza_detail' ); ?></div>
+			<div class="skaut-burza-foto-hlavni"><?php echo skaut_burza_foto_html( $prvni_foto, 'full' ); ?></div>
 		<?php else : ?>
 			<div class="skaut-burza-bez-fotky"><?php esc_html_e( 'Bez fotky', 'skaut-burza' ); ?></div>
 		<?php endif; ?>
@@ -82,7 +82,7 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 		<?php if ( $zbyvajici_fotky ) : ?>
 			<div class="skaut-burza-dalsi-fotky">
 				<?php foreach ( $zbyvajici_fotky as $attachment_id ) : ?>
-					<?php echo skaut_burza_foto_html( (int) $attachment_id, 'burza_detail' ); ?>
+					<?php echo skaut_burza_foto_html( (int) $attachment_id, 'full' ); ?>
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>

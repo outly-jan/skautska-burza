@@ -34,20 +34,29 @@ function skaut_burza_upload_dir_filter( array $uploads ): array {
 }
 
 /**
- * Jen dvě generované velikosti pro uploady z burzy — čtvercový náhled
- * a detail — místo standardních pěti a víc, ať se nezahltí hosting.
+ * Maximální šířka uložené fotky v px. Větší fotka se na serveru zmenší přímo
+ * v originálu, který pak slouží jako detail.
+ */
+function skaut_burza_max_sirka_fotky(): int {
+	return 1200;
+}
+
+/**
+ * Jediná generovaná velikost pro uploady z burzy — čtvercový náhled — místo
+ * standardních pěti a víc, ať se nezahltí hosting. Detail je samotný
+ * (zmenšený) originál.
  */
 function skaut_burza_intermediate_sizes_filter(): array {
 	return [
 		'burza_nahled' => [ 'width' => 400, 'height' => 400, 'crop' => true ],
-		'burza_detail' => [ 'width' => 1200, 'height' => 0, 'crop' => false ],
 	];
 }
 
 /**
  * Zpracuje jeden nahraný soubor ($_FILES['pole']) jako fotku inzerátu:
- * serverová validace, upload do uploads/burza/, vygenerování jen dvou
- * velikostí, smazání originálu. Vrátí ID přílohy, nebo WP_Error.
+ * serverová validace, upload do uploads/burza/, zmenšení originálu na
+ * max. šířku detailu a vygenerování čtvercového náhledu. Vrátí ID přílohy,
+ * nebo WP_Error.
  *
  * @param array $file Jedna položka z $_FILES (ne vícerozměrné pole).
  */
@@ -87,6 +96,18 @@ function skaut_burza_zpracuj_upload( array $file, int $post_id ) {
 		return new WP_Error( 'skaut_burza_upload_selhal', $sideload['error'] );
 	}
 
+	// Originál se nemaže, slouží jako detail — jen se zmenší na max. šířku.
+	// Samostatnou velikost pro detail WordPress u užších fotek (typicky na
+	// výšku, 1200×1600 po zmenšení v prohlížeči) vůbec nevygeneruje.
+	$editor = wp_get_image_editor( $sideload['file'] );
+	if ( ! is_wp_error( $editor ) ) {
+		$rozmery = $editor->get_size();
+		if ( $rozmery['width'] > skaut_burza_max_sirka_fotky() ) {
+			$editor->resize( skaut_burza_max_sirka_fotky(), null, false );
+			$editor->save( $sideload['file'] );
+		}
+	}
+
 	$attachment_id = wp_insert_attachment( [
 		'post_mime_type' => $sideload['type'],
 		'post_title'     => sanitize_file_name( pathinfo( $sideload['file'], PATHINFO_FILENAME ) ),
@@ -104,11 +125,6 @@ function skaut_burza_zpracuj_upload( array $file, int $post_id ) {
 	$metadata = wp_generate_attachment_metadata( $attachment_id, $sideload['file'] );
 	remove_filter( 'intermediate_image_sizes_advanced', 'skaut_burza_intermediate_sizes_filter' );
 	wp_update_attachment_metadata( $attachment_id, $metadata );
-
-	// Originál po vygenerování náhledu a detailu smazat, ať zůstanou jen ty dvě velikosti.
-	if ( file_exists( $sideload['file'] ) ) {
-		@unlink( $sideload['file'] );
-	}
 
 	return $attachment_id;
 }

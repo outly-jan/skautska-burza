@@ -24,3 +24,5 @@ Pokud PHP hlásí chybu, nesmíš mergovat.
   (FTP), nikdy v něm přes git neměň `CHANGE_ME`
 - Webhook nestahuje `.github/`, `CLAUDE.md` ani sám sebe; vše ostatní v repu
   se nasadí do `wp-content/plugins/skautska-burza/`
+- Na FTP je správná cesta `/public_html/wp-content/plugins/skautska-burza/`;
+  složka `/wp-content/plugins/` mimo `public_html` je chybná, nepoužívat

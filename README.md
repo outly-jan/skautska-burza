@@ -110,8 +110,9 @@ nepřihlášeným nikdy nevrátí.
 
 Nahrávají se do vlastní podsložky `uploads/burza/`, označené meta klíčem
 `_burza_foto`, ať jsou odlišitelné od ostatní medializace na webu. Pro
-uploady z burzy vznikají jen dvě velikosti (čtvercový náhled 400×400,
-detail šířky 1200 px) a originál se po vygenerování smaže — hlavní ochranu
+uploady z burzy vzniká jen jedna generovaná velikost (čtvercový náhled
+400×400 do výpisu); jako detail slouží samotný originál, který se na
+serveru zmenší na šířku max. 1200 px. Hlavní ochranu
 proti zahlcení hostingu ale dělá zmenšení přímo v prohlížeči před
 odesláním (`assets/js/burza-upload.js`).
 
@@ -155,8 +156,9 @@ stáhne je do složky pluginu — kromě `.github/`, `CLAUDE.md` a sebe sama.
 1. V repozitáři na GitHubu nastav secret `DEPLOY_SECRET`
    (Settings → Secrets and variables → Actions) na náhodný řetězec.
 2. Nahraj `deploy-webhook.php` přes FTP do
-   `wp-content/plugins/skautska-burza/` a na serveru v něm nahraď
-   `CHANGE_ME` stejným řetězcem.
+   `/public_html/wp-content/plugins/skautska-burza/` a na serveru v něm
+   nahraď `CHANGE_ME` stejným řetězcem. (Na FTP existuje i
+   `/wp-content/plugins/` mimo `public_html` — ta je chybná, nepoužívat.)
 
 > **Pozor:** `deploy-webhook.php` na serveru obsahuje tajný token — neupravuj
 > ho přes git, jinak se přepíše na `CHANGE_ME`. Webhook sám sebe nikdy
