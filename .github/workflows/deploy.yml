@@ -1,0 +1,14 @@
+name: Deploy na server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Zavolat deploy webhook
+        run: |
+          curl -fsS -H "X-Deploy-Token: ${{ secrets.DEPLOY_SECRET }}" "https://skautchlumec.cz/wp-content/plugins/skautska-burza/deploy-webhook.php"

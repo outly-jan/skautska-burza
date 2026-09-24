@@ -9,9 +9,9 @@ sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
 
 ## Instalace
 
-1. Nahraj celou složku `skautska-burza` do `wp-content/plugins/` (je
-   automaticky nasazovaná viz `../deploy-webhook.php` v tomto repozitáři,
-   ruční FTP upload je potřeba jen výjimečně).
+1. Nahraj obsah repozitáře do `wp-content/plugins/skautska-burza/` (je
+   automaticky nasazovaný, viz sekce **Deploy** níže, ruční FTP upload je
+   potřeba jen výjimečně).
 2. Aktivuj plugin v administraci WordPressu — při aktivaci se založí
    taxonomie a sedm výchozích kategorií a naplánuje se WP-Cron úloha.
 3. Vlož shortcody na stránky, kam patří (viz níže) — nejlépe každý na
@@ -134,3 +134,31 @@ Formulář vyžaduje souhlas se zveřejněním kontaktu přihlášeným uživate
 Smazání inzerátu (ručně i cronem) maže i fotky a veškerá postmeta včetně
 kontaktů. Plugin je napojený na exportér a mazač osobních údajů WordPressu
 (`wp_privacy_personal_data_exporters`/`_erasers`).
+
+---
+
+## Deploy
+
+Po každém mergi do větve `main` se spustí GitHub Actions workflow
+(`.github/workflows/deploy.yml`), který zavolá webhook na serveru:
+
+```
+https://skautchlumec.cz/wp-content/plugins/skautska-burza/deploy-webhook.php
+```
+
+s hlavičkou `X-Deploy-Token` (hodnota z GitHub secret `DEPLOY_SECRET`).
+Webhook si přes GitHub API načte aktuální seznam souborů v repozitáři a
+stáhne je do složky pluginu — kromě `.github/`, `CLAUDE.md` a sebe sama.
+
+### Prvotní zprovoznění
+
+1. V repozitáři na GitHubu nastav secret `DEPLOY_SECRET`
+   (Settings → Secrets and variables → Actions) na náhodný řetězec.
+2. Nahraj `deploy-webhook.php` přes FTP do
+   `wp-content/plugins/skautska-burza/` a na serveru v něm nahraď
+   `CHANGE_ME` stejným řetězcem.
+
+> **Pozor:** `deploy-webhook.php` na serveru obsahuje tajný token — neupravuj
+> ho přes git, jinak se přepíše na `CHANGE_ME`. Webhook sám sebe nikdy
+> nestahuje, takže po každé změně jeho kódu je potřeba ho znovu ručně nahrát
+> na server.
