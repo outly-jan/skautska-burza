@@ -13,6 +13,8 @@ while ( have_posts() ) :
 	$post_obj = get_post();
 	?>
 	<article <?php post_class( 'skaut-burza-detail' ); ?>>
+		<?php echo skaut_burza_zpet_na_vypis_html(); ?>
+
 		<h1><?php the_title(); ?></h1>
 
 		<?php echo skaut_burza_verejna_data_html( $post_obj ); ?>
@@ -22,6 +24,8 @@ while ( have_posts() ) :
 		</div>
 
 		<?php echo skaut_burza_disclaimer_html(); ?>
+
+		<?php echo skaut_burza_zpet_na_vypis_html(); ?>
 	</article>
 	<?php
 endwhile;

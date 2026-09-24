@@ -110,6 +110,19 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 	return ob_get_clean();
 }
 
+/**
+ * Odkaz zpět na stránku s výpisem inzerátů ([burza_vypis]). Pokud návštěvník
+ * přišel z výpisu, JS (burza-kontakt.js) ho vrátí přes historii prohlížeče,
+ * ať zůstane zachovaný filtr a stránkování.
+ */
+function skaut_burza_zpet_na_vypis_html(): string {
+	$vypis = skaut_burza_stranka_s_shortcode( 'burza_vypis' );
+	if ( ! $vypis ) return '';
+
+	return '<p class="skaut-burza-zpet"><a href="' . esc_url( get_permalink( $vypis ) ) . '" data-skaut-burza-zpet>'
+		. esc_html__( '← Zpět na přehled inzerátů', 'skaut-burza' ) . '</a></p>';
+}
+
 function skaut_burza_prihlaseni_vyzva_html(): string {
 	return '<p class="skaut-burza-vyzva">' . sprintf(
 		/* translators: %s: odkaz na přihlášení */
@@ -147,6 +160,7 @@ function skaut_burza_stranka_s_shortcode( string $shortcode ): int {
 function skaut_burza_vycistit_stranka_cache(): void {
 	delete_transient( 'skaut_burza_stranka_burza_formular' );
 	delete_transient( 'skaut_burza_stranka_burza_moje' );
+	delete_transient( 'skaut_burza_stranka_burza_vypis' );
 }
 
 function skaut_burza_template_include( string $template ): string {
