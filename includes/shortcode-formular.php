@@ -192,6 +192,49 @@ function skaut_burza_handle_formular_submit(): void {
 	exit;
 }
 
+/**
+ * Pravidla burzy nad formulářem pro nový inzerát. Čísla se berou
+ * z nastavení, ať nápověda vždy odpovídá skutečnému chování.
+ */
+function skaut_burza_formular_napoveda_html( int $max_fotek ): string {
+	$moje_stranka = skaut_burza_stranka_s_shortcode( 'burza_moje' );
+	$moje_odkaz   = $moje_stranka
+		? '<a href="' . esc_url( get_permalink( $moje_stranka ) ) . '">' . esc_html__( 'Moje inzeráty', 'skaut-burza' ) . '</a>'
+		: esc_html__( 'Moje inzeráty', 'skaut-burza' );
+
+	$body = [
+		sprintf(
+			/* translators: 1: celková doba zveřejnění, 2: dny do první výzvy, 3: počet výzev */
+			esc_html__( 'Inzerát je zveřejněný %1$s. %2$s po vložení vám přijde e-mail s dotazem, jestli je stále aktuální — stačí kliknout a doba se počítá znovu od začátku. Když na %3$s takové e-maily nezareagujete, inzerát se přesune do archivu.', 'skaut-burza' ),
+			esc_html( skaut_burza_dny_text( skaut_burza_celkova_doba_zverejneni() ) ),
+			esc_html( skaut_burza_dny_text( skaut_burza_dny_do_prvni_vyzvy() ) ),
+			(int) skaut_burza_max_vyzev()
+		),
+		sprintf(
+			/* translators: %s: odkaz na stránku Moje inzeráty */
+			esc_html__( 'V přehledu %s vidíte, kolik dní zbývá, a platnost tam můžete kdykoli prodloužit. Najdete tam i úpravu a smazání inzerátu.', 'skaut-burza' ),
+			$moje_odkaz
+		),
+		esc_html__( 'Když se s někým domluvíte, označte věc jako rezervovanou — ve výpisu zůstane se štítkem „Rezervováno“ a rezervaci jde zase zrušit. Po předání ji označte jako prodanou, přesune se do archivu.', 'skaut-burza' ),
+		esc_html__( 'Z archivu můžete inzerát kdykoli znovu zveřejnit. Archivované inzeráty se po 6 měsících i s fotkami smažou.', 'skaut-burza' ),
+		sprintf(
+			/* translators: 1: max. počet fotek, 2: max. velikost souboru v MB */
+			esc_html__( 'Fotky: nejvýš %1$d, formát JPG, PNG nebo WEBP. Velké fotky z mobilu se před odesláním automaticky zmenší, velikost souboru tedy řešit nemusíte (limit %2$d MB na fotku platí jen v případě, že by to prohlížeč nezvládl).', 'skaut-burza' ),
+			$max_fotek,
+			(int) ( skaut_burza_max_velikost_souboru() / ( 1024 * 1024 ) )
+		),
+		sprintf(
+			/* translators: %d: max. počet aktivních inzerátů */
+			esc_html__( 'Popis, další fotky a kontakt uvidí jen přihlášení uživatelé webu. Najednou můžete mít nejvýš %d aktivních inzerátů.', 'skaut-burza' ),
+			skaut_burza_max_inzeratu()
+		),
+	];
+
+	return '<div class="skaut-burza-napoveda"><p><strong>' . esc_html__( 'Jak burza funguje', 'skaut-burza' ) . '</strong></p><ul><li>'
+		. implode( '</li><li>', $body )
+		. '</li></ul></div>';
+}
+
 function skaut_burza_shortcode_formular( $atts ): string {
 	if ( ! is_user_logged_in() ) {
 		return '<p class="skaut-burza-vyzva">' . sprintf(
@@ -269,6 +312,8 @@ function skaut_burza_shortcode_formular( $atts ): string {
 			</ul>
 		<?php endif; ?>
 
+		<?php if ( ! $je_editace ) echo skaut_burza_formular_napoveda_html( $max_fotek ); ?>
+
 		<form method="post" enctype="multipart/form-data" class="skaut-burza-form">
 			<?php wp_nonce_field( 'skaut_burza_formular', 'skaut_burza_formular_nonce' ); ?>
 			<input type="hidden" name="burza_post_id" value="<?php echo esc_attr( $post_id ); ?>">
@@ -344,7 +389,11 @@ function skaut_burza_shortcode_formular( $atts ): string {
 			<?php endif; ?>
 
 			<p>
-				<label for="burza_fotky"><?php esc_html_e( 'Fotky (max. 3, JPG/PNG/WEBP)', 'skaut-burza' ); ?></label>
+				<label for="burza_fotky"><?php echo esc_html( sprintf(
+					/* translators: %d: maximální počet fotek */
+					__( 'Fotky (max. %d, JPG/PNG/WEBP)', 'skaut-burza' ),
+					$max_fotek
+				) ); ?></label>
 				<input type="file" id="burza_fotky" name="burza_fotky[]" accept="image/jpeg,image/png,image/webp" multiple data-max-fotek="<?php echo esc_attr( $max_fotek ); ?>" data-jiz-fotek="<?php echo esc_attr( $je_editace ? count( $fotky ) : 0 ); ?>">
 				<span class="skaut-burza-fotky-info"></span>
 			</p>

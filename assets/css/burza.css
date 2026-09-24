@@ -222,3 +222,39 @@
 .skaut-burza-moje-archiv {
 	opacity: 0.75;
 }
+
+.skaut-burza-napoveda {
+	background: #f7f3e6;
+	border-left: 4px solid #d8c68f;
+	padding: 0.75em 1.25em;
+	margin-bottom: 1.5em;
+	max-width: 48em;
+}
+
+.skaut-burza-napoveda p {
+	margin: 0 0 0.5em;
+}
+
+.skaut-burza-napoveda ul {
+	margin: 0;
+	padding-left: 1.2em;
+}
+
+.skaut-burza-napoveda li {
+	margin-bottom: 0.4em;
+}
+
+.skaut-burza-napoveda-kratka {
+	font-size: 0.9em;
+	color: #555;
+}
+
+.skaut-burza-moje-platnost {
+	font-size: 0.85em;
+	color: #666;
+}
+
+.skaut-burza-moje-platnost-brzy {
+	color: #b32d2e;
+	font-weight: 600;
+}

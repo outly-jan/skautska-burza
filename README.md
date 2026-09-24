@@ -29,7 +29,7 @@ sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
 |---|---|
 | `[burza_vypis]` | Výpis aktivních inzerátů — dlaždice, filtr podle kategorie, fulltext, stránkování. |
 | `[burza_formular]` | Vložení nového nebo editace vlastního inzerátu (jen pro přihlášené). Editace se otevírá jako `?burza_uprava=ID` na stránce s tímhle shortcodem. |
-| `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat, prodáno, prodloužit, smazat, znovu zveřejnit). |
+| `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat / zrušit rezervaci, prodáno, prodloužit, smazat, znovu zveřejnit), u každého počet dní do archivace, u archivovaných do smazání. Formulář `[burza_formular]` má nad sebou nápovědu s pravidly burzy (čísla bere z nastavení). |
 
 Odkaz "upravit" v `[burza_moje]` si stránku s `[burza_formular]` dohledá
 sám podle obsahu webu, není potřeba nic ručně párovat.
@@ -119,8 +119,8 @@ odesláním (`assets/js/burza-upload.js`).
 ## Životní cyklus a e-maily
 
 Nezaktualizovaný inzerát: 30 dní od vložení/potvrzení → první výzva
-e-mailem, pak každých dalších 14 dní další výzva, po třech nezodpovězených
-přesun do archivu (celkem cca 2 měsíce). E-mail s výzvou obsahuje dva
+e-mailem, pak každých dalších 14 dní další výzva a 14 dní po třetí
+nezodpovězené přesun do archivu (celkem 72 dní). E-mail s výzvou obsahuje dva
 jednorázové odkazy (potvrdit / už je pryč) — token se po použití vždy
 regeneruje. Archivované inzeráty starší 6 měsíců se jednou měsíčně
 nenávratně smažou i s fotkami.
