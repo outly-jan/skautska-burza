@@ -2,6 +2,18 @@
 	'use strict';
 
 	document.addEventListener( 'DOMContentLoaded', function () {
+		// Návrat na výpis: když návštěvník přišel právě z něj, vrátit ho přes
+		// historii, ať zůstane filtr, hledání i stránka výpisu.
+		document.querySelectorAll( 'a[data-skaut-burza-zpet]' ).forEach( function ( odkaz ) {
+			odkaz.addEventListener( 'click', function ( e ) {
+				var vypis = odkaz.href.split( '?' )[0];
+				if ( document.referrer && document.referrer.split( '?' )[0] === vypis && window.history.length > 1 ) {
+					e.preventDefault();
+					window.history.back();
+				}
+			} );
+		} );
+
 		var kontejnery = document.querySelectorAll( '.skaut-burza-kontakt-container[data-post-id]' );
 		if ( ! kontejnery.length || typeof skautBurzaKontakt === 'undefined' ) return;
 

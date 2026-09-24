@@ -258,3 +258,12 @@
 	color: #b32d2e;
 	font-weight: 600;
 }
+
+.skaut-burza-zpet {
+	margin: 0 0 1em;
+	font-size: 0.95em;
+}
+
+.skaut-burza-detail .skaut-burza-disclaimer + .skaut-burza-zpet {
+	margin-top: 1.5em;
+}
