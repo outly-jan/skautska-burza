@@ -88,13 +88,37 @@
 	box-sizing: border-box;
 }
 
-.skaut-burza-foto-hlavni img {
+.skaut-burza-detail .skaut-burza-foto-hlavni img {
 	display: block;
 	width: auto;
 	max-width: 100%;
 	height: auto;
-	max-height: 75vh;
+	max-height: 480px;
 	margin-bottom: 1em;
+	border-radius: 4px;
+}
+
+/* Na širší obrazovce fotka vlevo, údaje vpravo. */
+@media (min-width: 700px) {
+	.skaut-burza-detail .skaut-burza-verejne {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0 2em;
+		align-items: start;
+	}
+
+	.skaut-burza-detail .skaut-burza-foto-hlavni img {
+		max-width: 420px;
+	}
+
+	.skaut-burza-detail .skaut-burza-udaje {
+		margin-top: 0;
+	}
+
+	.skaut-burza-detail .skaut-burza-stitek-rezervovano {
+		grid-column: 1 / -1;
+		justify-self: start;
+	}
 }
 
 .skaut-burza-dlazdice-foto {
@@ -141,10 +165,29 @@
 	margin-top: 1.5em;
 }
 
-.skaut-burza-dalsi-fotky img {
+.skaut-burza-popis {
+	margin: 1em 0;
+}
+
+.skaut-burza-dalsi-fotky {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75em;
+	margin-bottom: 1em;
+}
+
+.skaut-burza-detail .skaut-burza-dalsi-fotky img {
+	display: block;
+	width: auto;
 	max-width: 100%;
 	height: auto;
-	margin-bottom: 0.75em;
+	max-height: 300px;
+	border-radius: 4px;
+}
+
+.skaut-burza-kontakty {
+	list-style: none;
+	padding: 0;
 }
 
 .skaut-burza-disclaimer {
