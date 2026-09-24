@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,4 +12,4 @@ jobs:
     steps:
       - name: Zavolat deploy webhook
         run: |
-          curl -fsS -H "X-Deploy-Token: ${{ secrets.DEPLOY_SECRET }}" "https://skautchlumec.cz/wp-content/plugins/skautska-burza/deploy-webhook.php"
+          curl -fsS -H "X-Deploy-Token: ${{ secrets.DEPLOY_SECRET }}" -H "X-Deploy-Sha: ${{ github.sha }}" "https://skautchlumec.cz/wp-content/plugins/skautska-burza/deploy-webhook.php"

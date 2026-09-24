@@ -8,9 +8,16 @@ if (($_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '') !== DEPLOY_SECRET) {
     exit('Unauthorized');
 }
 
-$repo     = 'outly-jan/skautska-burza';
-$branch   = 'main';
-$base_url = 'https://raw.githubusercontent.com/' . $repo . '/' . $branch . '/';
+$repo = 'outly-jan/skautska-burza';
+
+// Stahuje se podle konkrétního commitu, ne podle větve — raw.githubusercontent.com
+// drží soubory z větve několik minut v cache, takže deploy hned po mergi
+// by jinak mohl nahrát starou verzi. SHA posílá GitHub Actions v hlavičce.
+$ref = $_SERVER['HTTP_X_DEPLOY_SHA'] ?? '';
+if (!preg_match('/^[0-9a-f]{40}$/', $ref)) {
+    $ref = 'main';
+}
+$base_url = 'https://raw.githubusercontent.com/' . $repo . '/' . $ref . '/';
 $target   = __DIR__;
 $log      = [];
 $errors   = 0;
@@ -26,7 +33,7 @@ $tree_context = stream_context_create([
     'http' => ['header' => "User-Agent: skautska-burza-deploy\r\n"],
 ]);
 $tree_json = @file_get_contents(
-    'https://api.github.com/repos/' . $repo . '/git/trees/' . $branch . '?recursive=1',
+    'https://api.github.com/repos/' . $repo . '/git/trees/' . $ref . '?recursive=1',
     false,
     $tree_context
 );
@@ -57,7 +64,11 @@ foreach ($tree['tree'] as $item) {
     if (!is_dir(dirname($dest))) {
         mkdir(dirname($dest), 0755, true);
     }
-    file_put_contents($dest, $data);
+    if (file_put_contents($dest, $data) === false) {
+        $log[] = 'CHYBA zápisu: ' . $path;
+        $errors++;
+        continue;
+    }
     if (function_exists('opcache_invalidate') && str_ends_with($dest, '.php')) {
         opcache_invalidate($dest, true);
     }
@@ -68,4 +79,4 @@ if ($errors > 0) {
     http_response_code(500);
 }
 $status = $errors === 0 ? 'OK' : "CHYBY: $errors";
-echo $status . ' — ' . date('Y-m-d H:i:s') . "\n" . implode("\n", $log);
+echo $status . ' — ' . date('Y-m-d H:i:s') . ' — ' . $ref . "\n" . implode("\n", $log);
