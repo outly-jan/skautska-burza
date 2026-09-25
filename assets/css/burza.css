@@ -166,15 +166,41 @@
 	background: #f2f2f2;
 }
 
+.skaut-burza-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25em;
+}
+
+.skaut-burza-cena-volby {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4em;
+	max-width: 32em;
+}
+
+.skaut-burza-form .skaut-burza-cena-volba {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	font-weight: normal;
+	margin: 0;
+}
+
 .skaut-burza-cena-pole {
 	display: flex;
 	align-items: center;
 	gap: 0.5em;
-	max-width: 32em;
+}
+
+.skaut-burza-form .skaut-burza-cena-pole input.skaut-burza-neaktivni {
+	background: #f2f2f2;
+	color: #999;
 }
 
 .skaut-burza-form .skaut-burza-cena-pole input[type="number"] {
-	width: 100%;
+	width: 12em;
+	max-width: 100%;
 	box-sizing: border-box;
 	padding: 0.5em;
 }
