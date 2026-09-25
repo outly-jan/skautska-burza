@@ -162,11 +162,24 @@ function skaut_burza_zpet_na_vypis_html(): string {
 		. esc_html__( '← Zpět na přehled inzerátů', 'skaut-burza' ) . '</a></p>';
 }
 
-function skaut_burza_prihlaseni_vyzva_html(): string {
+/**
+ * Odkaz na přihlašovací stránku webu (Burza → Nastavení, výchozí /prihlasit/)
+ * s návratem na $navrat po přihlášení (parametr redirect_to, stejně jako
+ * u wp-login.php).
+ */
+function skaut_burza_prihlaseni_url( string $navrat = '' ): string {
+	$url = trim( (string) get_option( 'skaut_burza_url_prihlaseni', '' ) );
+	if ( '' === $url ) $url = home_url( '/prihlasit/' );
+	if ( 0 === strpos( $url, '/' ) ) $url = home_url( $url );
+
+	return $navrat ? add_query_arg( 'redirect_to', rawurlencode( $navrat ), $url ) : $url;
+}
+
+function skaut_burza_prihlaseni_vyzva_html( int $post_id = 0 ): string {
 	return '<p class="skaut-burza-vyzva">' . sprintf(
 		/* translators: %s: odkaz na přihlášení */
 		esc_html__( 'Popis, další fotky a kontakt na prodávajícího uvidíte po %s.', 'skaut-burza' ),
-		'<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'přihlášení', 'skaut-burza' ) . '</a>'
+		'<a href="' . esc_url( skaut_burza_prihlaseni_url( (string) get_permalink( $post_id ?: null ) ) ) . '">' . esc_html__( 'přihlášení', 'skaut-burza' ) . '</a>'
 	) . '</p>';
 }
 

@@ -82,7 +82,7 @@ function skaut_burza_shortcode_moje( $atts ): string {
 		return '<p class="skaut-burza-vyzva">' . sprintf(
 			/* translators: %s: odkaz na přihlášení */
 			esc_html__( 'Pro přehled vlastních inzerátů se musíte %s.', 'skaut-burza' ),
-			'<a href="' . esc_url( wp_login_url( add_query_arg( 'burza_panel', 'moje', get_permalink() ) ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
+			'<a href="' . esc_url( skaut_burza_prihlaseni_url( add_query_arg( 'burza_panel', 'moje', get_permalink() ) ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
 		) . '</p>';
 	}
 

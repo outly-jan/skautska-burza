@@ -36,7 +36,7 @@ function skaut_burza_ajax_kontakt(): void {
 	$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
 
 	if ( ! is_user_logged_in() ) {
-		wp_send_json_success( [ 'html' => skaut_burza_prihlaseni_vyzva_html() ] );
+		wp_send_json_success( [ 'html' => skaut_burza_prihlaseni_vyzva_html( $post_id ) ] );
 	}
 
 	if ( ! $post_id || ! skaut_burza_smi_videt_kontakt( $post_id ) ) {

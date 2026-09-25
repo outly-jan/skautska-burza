@@ -249,7 +249,7 @@ function skaut_burza_shortcode_formular( $atts ): string {
 		return '<p class="skaut-burza-vyzva">' . sprintf(
 			/* translators: %s: odkaz na přihlášení */
 			esc_html__( 'Pro vložení inzerátu do burzy se musíte %s.', 'skaut-burza' ),
-			'<a href="' . esc_url( wp_login_url( add_query_arg( 'burza_panel', 'formular', get_permalink() ) ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
+			'<a href="' . esc_url( skaut_burza_prihlaseni_url( add_query_arg( 'burza_panel', 'formular', get_permalink() ) ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
 		) . '</p>';
 	}
 
