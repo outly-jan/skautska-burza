@@ -45,7 +45,8 @@ odeslání otevřou panel s formulářem automaticky.
 Detail jednotlivého inzerátu (`/inzerat/<slug>/`) má vlastní šablonu
 (`templates/single-burza_inzerat.php`), kterou přebije stejnojmenná šablona
 `single-burza_inzerat.php` v aktivním tématu, pokud existuje. Detail
-ukazuje hlavní fotku s údaji vedle ní, pro přihlášené navíc popis, další
+ukazuje hlavní fotku s údaji vedle ní, pro přihlášené navíc popis,
+nepovinné dodatečné informace (např. vyzvednutí), další
 fotky, jméno a příjmení prodávajícího (z WP profilu, ne přezdívka),
 telefon a e-mail. Nahoře i dole je odkaz zpět na přehled.
 
@@ -125,8 +126,8 @@ nejbližším zavolání `wp-cron.php` po termínu.
 
 CPT `burza_inzerat`, hierarchická taxonomie `burza_kategorie` (sedm
 předvyplněných kategorií), vlastní post statusy `burza_rezervovano`
-(veřejný) a `burza_archiv` (soukromý — vidí ho jen autor a admin) a devět
-meta polí (`_burza_velikost`, `_burza_stav`, `_burza_cena`,
+(veřejný) a `burza_archiv` (soukromý — vidí ho jen autor a admin) a deset
+meta polí (`_burza_velikost`, `_burza_stav`, `_burza_cena`, `_burza_dodatecne_info`,
 `_burza_telefon`, `_burza_email`, `_burza_fotky`,
 `_burza_posledni_potvrzeni`, `_burza_pocet_vyzev`, `_burza_token`).
 Telefon a e-mail jsou chráněné meta s `auth_callback`, který je

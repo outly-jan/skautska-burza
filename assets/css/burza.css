@@ -229,8 +229,13 @@
 	margin-top: 1.5em;
 }
 
-.skaut-burza-popis {
+.skaut-burza-popis,
+.skaut-burza-dodatecne {
 	margin: 1em 0;
+}
+
+.skaut-burza-dodatecne p {
+	margin: 0.25em 0 0;
 }
 
 .skaut-burza-dalsi-fotky {

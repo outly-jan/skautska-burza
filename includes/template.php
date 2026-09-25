@@ -115,6 +115,7 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 	$zbyvajici_fotky = array_slice( $fotky, 1 );
 	$telefon         = get_post_meta( $post->ID, '_burza_telefon', true );
 	$email           = get_post_meta( $post->ID, '_burza_email', true );
+	$dodatecne       = (string) get_post_meta( $post->ID, '_burza_dodatecne_info', true );
 	$prodavajici     = skaut_burza_jmeno_autora( $post );
 
 	ob_start();
@@ -122,6 +123,13 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 	<div class="skaut-burza-gated">
 		<?php if ( $post->post_content ) : ?>
 			<div class="skaut-burza-popis"><?php echo wpautop( esc_html( $post->post_content ) ); ?></div>
+		<?php endif; ?>
+
+		<?php if ( '' !== trim( $dodatecne ) ) : ?>
+			<div class="skaut-burza-dodatecne">
+				<strong><?php esc_html_e( 'Dodatečné informace:', 'skaut-burza' ); ?></strong>
+				<?php echo wpautop( esc_html( $dodatecne ) ); ?>
+			</div>
 		<?php endif; ?>
 
 		<?php if ( $zbyvajici_fotky ) : ?>

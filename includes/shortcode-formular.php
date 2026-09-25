@@ -88,6 +88,7 @@ function skaut_burza_handle_formular_submit(): void {
 
 	$nazev     = sanitize_text_field( wp_unslash( $_POST['burza_nazev'] ?? '' ) );
 	$popis     = sanitize_textarea_field( wp_unslash( $_POST['burza_popis'] ?? '' ) );
+	$dodatecne = sanitize_textarea_field( wp_unslash( $_POST['burza_dodatecne_info'] ?? '' ) );
 	$kategorie = absint( $_POST['burza_kategorie'] ?? 0 );
 	$velikost  = sanitize_text_field( wp_unslash( $_POST['burza_velikost'] ?? '' ) );
 	$stav      = skaut_burza_sanitize_stav( wp_unslash( $_POST['burza_stav'] ?? '' ) );
@@ -144,6 +145,7 @@ function skaut_burza_handle_formular_submit(): void {
 	wp_set_object_terms( $vysledek_id, [ $kategorie ], 'burza_kategorie', false );
 
 	update_post_meta( $vysledek_id, '_burza_velikost', $velikost );
+	update_post_meta( $vysledek_id, '_burza_dodatecne_info', $dodatecne );
 	update_post_meta( $vysledek_id, '_burza_stav', $stav );
 	update_post_meta( $vysledek_id, '_burza_cena', $cena );
 	update_post_meta( $vysledek_id, '_burza_telefon', $telefon );
@@ -282,6 +284,7 @@ function skaut_burza_shortcode_formular( $atts ): string {
 	if ( $je_editace ) {
 		$nazev     = $hodnota( 'burza_nazev', $existujici->post_title );
 		$popis     = $po_postu && isset( $_POST['burza_popis'] ) ? sanitize_textarea_field( wp_unslash( $_POST['burza_popis'] ) ) : $existujici->post_content;
+		$dodatecne = $po_postu && isset( $_POST['burza_dodatecne_info'] ) ? sanitize_textarea_field( wp_unslash( $_POST['burza_dodatecne_info'] ) ) : (string) get_post_meta( $post_id, '_burza_dodatecne_info', true );
 		$velikost  = $hodnota( 'burza_velikost', (string) get_post_meta( $post_id, '_burza_velikost', true ) );
 		$stav      = $hodnota( 'burza_stav', (string) get_post_meta( $post_id, '_burza_stav', true ) );
 		$ulozena   = (string) get_post_meta( $post_id, '_burza_cena', true );
@@ -297,6 +300,7 @@ function skaut_burza_shortcode_formular( $atts ): string {
 	} else {
 		$nazev     = $hodnota( 'burza_nazev' );
 		$popis     = $po_postu && isset( $_POST['burza_popis'] ) ? sanitize_textarea_field( wp_unslash( $_POST['burza_popis'] ) ) : '';
+		$dodatecne = $po_postu && isset( $_POST['burza_dodatecne_info'] ) ? sanitize_textarea_field( wp_unslash( $_POST['burza_dodatecne_info'] ) ) : '';
 		$velikost  = $hodnota( 'burza_velikost' );
 		$stav      = $hodnota( 'burza_stav' );
 		$cena_typ  = $hodnota( 'burza_cena_typ', 'castka' );
@@ -388,6 +392,11 @@ function skaut_burza_shortcode_formular( $atts ): string {
 						</label>
 					<?php endforeach; ?>
 				</span>
+			</p>
+
+			<p>
+				<label for="burza_dodatecne_info"><?php esc_html_e( 'Dodatečné informace (nepovinné)', 'skaut-burza' ); ?></label>
+				<textarea id="burza_dodatecne_info" name="burza_dodatecne_info" rows="3" placeholder="<?php esc_attr_e( 'např. kde a kdy je možné věc vyzvednout, možnost poslat poštou…', 'skaut-burza' ); ?>"><?php echo esc_textarea( $dodatecne ); ?></textarea>
 			</p>
 
 			<p>
