@@ -153,7 +153,8 @@ regeneruje. Archivované inzeráty starší 6 měsíců se jednou měsíčně
 nenávratně smažou i s fotkami.
 
 Všechny výchozí lhůty (dny do první výzvy, interval dalších výzev, počet
-výzev před archivací), max. počet fotek, adresa stránky burzy a kontaktní
+výzev před archivací), max. počet fotek, adresa stránky burzy, adresa přihlašovací stránky
+(výchozí `/prihlasit/`, odkazy „přihlásit“ v burze) a kontaktní
 e-mail střediska se dají upravit v **Burza → Nastavení**.
 
 ## Ochrana osobních údajů

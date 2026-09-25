@@ -165,6 +165,11 @@ function skaut_burza_register_settings(): void {
 		'sanitize_callback' => 'esc_url_raw',
 		'default'           => '',
 	] );
+	register_setting( 'skaut_burza_nastaveni', 'skaut_burza_url_prihlaseni', [
+		'type'              => 'string',
+		'sanitize_callback' => 'esc_url_raw',
+		'default'           => '',
+	] );
 	register_setting( 'skaut_burza_nastaveni', 'skaut_burza_kontaktni_email', [
 		'type'              => 'string',
 		'sanitize_callback' => 'sanitize_email',
@@ -201,6 +206,13 @@ function skaut_burza_render_nastaveni_stranka(): void {
 					<td>
 						<input type="url" class="regular-text" id="skaut_burza_url_stranky" name="skaut_burza_url_stranky" value="<?php echo esc_attr( get_option( 'skaut_burza_url_stranky', '' ) ); ?>" placeholder="<?php echo esc_attr( home_url( '/bazar/' ) ); ?>">
 						<p class="description"><?php esc_html_e( 'Stránka se shortcody [burza_vypis], [burza_formular] a [burza_moje]. Prázdné = /bazar/. Sem vedou odkazy „Zpět na přehled“, „upravit“, „Moje inzeráty“ i odkaz v e-mailu.', 'skaut-burza' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="skaut_burza_url_prihlaseni"><?php esc_html_e( 'Adresa přihlašovací stránky', 'skaut-burza' ); ?></label></th>
+					<td>
+						<input type="url" class="regular-text" id="skaut_burza_url_prihlaseni" name="skaut_burza_url_prihlaseni" value="<?php echo esc_attr( get_option( 'skaut_burza_url_prihlaseni', '' ) ); ?>" placeholder="<?php echo esc_attr( home_url( '/prihlasit/' ) ); ?>">
+						<p class="description"><?php esc_html_e( 'Kam vedou odkazy „přihlásit“ v burze. Prázdné = /prihlasit/. Návratová adresa se předává v parametru redirect_to.', 'skaut-burza' ); ?></p>
 					</td>
 				</tr>
 				<tr>
