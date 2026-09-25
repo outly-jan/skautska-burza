@@ -8,7 +8,7 @@ function skaut_burza_stavy(): array {
 	return [
 		'nove'        => __( 'Nové', 'skaut-burza' ),
 		'velmi-dobry' => __( 'Velmi dobrý', 'skaut-burza' ),
-		'nosene'      => __( 'Nošené', 'skaut-burza' ),
+		'nosene'      => __( 'Použité', 'skaut-burza' ),
 	];
 }
 
@@ -46,6 +46,14 @@ function skaut_burza_register_meta(): void {
 		'single'            => true,
 		'show_in_rest'      => false,
 		'sanitize_callback' => 'sanitize_text_field',
+		'auth_callback'     => 'skaut_burza_auth_meta',
+	] );
+
+	register_post_meta( 'burza_inzerat', '_burza_dodatecne_info', [
+		'type'              => 'string',
+		'single'            => true,
+		'show_in_rest'      => false,
+		'sanitize_callback' => 'sanitize_textarea_field',
 		'auth_callback'     => 'skaut_burza_auth_meta',
 	] );
 
