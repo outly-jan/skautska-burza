@@ -207,10 +207,7 @@ function skaut_burza_handle_formular_submit(): void {
  * z nastavení, ať nápověda vždy odpovídá skutečnému chování.
  */
 function skaut_burza_formular_napoveda_html( int $max_fotek ): string {
-	$moje_stranka = skaut_burza_stranka_s_shortcode( 'burza_moje' );
-	$moje_odkaz   = $moje_stranka
-		? '<a href="' . esc_url( get_permalink( $moje_stranka ) ) . '">' . esc_html__( 'Moje inzeráty', 'skaut-burza' ) . '</a>'
-		: esc_html__( 'Moje inzeráty', 'skaut-burza' );
+	$moje_odkaz = '<a href="' . esc_url( skaut_burza_url_stranky( 'moje' ) ) . '">' . esc_html__( 'Moje inzeráty', 'skaut-burza' ) . '</a>';
 
 	$body = [
 		sprintf(
@@ -250,13 +247,14 @@ function skaut_burza_shortcode_formular( $atts ): string {
 		return '<p class="skaut-burza-vyzva">' . sprintf(
 			/* translators: %s: odkaz na přihlášení */
 			esc_html__( 'Pro vložení inzerátu do burzy se musíte %s.', 'skaut-burza' ),
-			'<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
+			'<a href="' . esc_url( wp_login_url( add_query_arg( 'burza_panel', 'formular', get_permalink() ) ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
 		) . '</p>';
 	}
 
 	wp_enqueue_style( 'skaut-burza', SKAUT_BURZA_URL . 'assets/css/burza.css', [], SKAUT_BURZA_VERSION );
 	wp_enqueue_script( 'skaut-burza-upload', SKAUT_BURZA_URL . 'assets/js/burza-upload.js', [], SKAUT_BURZA_VERSION, true );
 	wp_enqueue_script( 'skaut-burza-formular', SKAUT_BURZA_URL . 'assets/js/burza-formular.js', [], SKAUT_BURZA_VERSION, true );
+	skaut_burza_enqueue_panely();
 
 	$user_id    = get_current_user_id();
 	$post_id    = isset( $_GET['burza_uprava'] ) ? absint( $_GET['burza_uprava'] ) : 0;
@@ -314,7 +312,7 @@ function skaut_burza_shortcode_formular( $atts ): string {
 
 	ob_start();
 	?>
-	<div class="skaut-burza skaut-burza-formular">
+	<div class="skaut-burza skaut-burza-formular" data-skaut-burza-panel="formular"<?php echo ( $po_postu || $je_editace || isset( $_GET['burza_ulozeno'] ) ) ? ' data-skaut-burza-aktivni' : ''; ?>>
 		<?php if ( isset( $_GET['burza_ulozeno'] ) ) : ?>
 			<p class="skaut-burza-ok"><?php esc_html_e( 'Inzerát byl uložen.', 'skaut-burza' ); ?></p>
 		<?php endif; ?>

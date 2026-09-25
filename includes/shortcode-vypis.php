@@ -7,6 +7,7 @@ function skaut_burza_vypis_na_stranku(): int {
 
 function skaut_burza_shortcode_vypis( $atts ): string {
 	wp_enqueue_style( 'skaut-burza', SKAUT_BURZA_URL . 'assets/css/burza.css', [], SKAUT_BURZA_VERSION );
+	skaut_burza_enqueue_panely();
 
 	$stranka   = isset( $_GET['burza_str'] ) ? max( 1, absint( $_GET['burza_str'] ) ) : 1;
 	$kategorie = isset( $_GET['burza_kategorie'] ) ? absint( $_GET['burza_kategorie'] ) : 0;
@@ -37,10 +38,12 @@ function skaut_burza_shortcode_vypis( $atts ): string {
 
 	ob_start();
 	?>
-	<div class="skaut-burza skaut-burza-vypis">
+	<div class="skaut-burza skaut-burza-vypis" data-skaut-burza-panel="vypis">
 		<form method="get" class="skaut-burza-filtr">
+			<input type="hidden" name="burza_panel" value="vypis">
 			<?php foreach ( $_GET as $klic => $hodnota ) : ?>
-				<?php if ( in_array( $klic, [ 'burza_kategorie', 'burza_hledat', 'burza_str' ], true ) ) continue; ?>
+				<?php // Parametry burzy (filtr, panel, úprava…) nepřenášet, jen cizí (např. stránky tématu). ?>
+				<?php if ( 0 === strpos( (string) $klic, 'burza_' ) ) continue; ?>
 				<input type="hidden" name="<?php echo esc_attr( $klic ); ?>" value="<?php echo esc_attr( is_array( $hodnota ) ? '' : $hodnota ); ?>">
 			<?php endforeach; ?>
 
@@ -104,6 +107,7 @@ function skaut_burza_shortcode_vypis( $atts ): string {
 					'current'   => $stranka,
 					'format'    => '?burza_str=%#%',
 					'add_args'  => array_filter( [
+						'burza_panel'     => 'vypis',
 						'burza_kategorie' => $kategorie ?: false,
 						'burza_hledat'    => $hledat ?: false,
 					] ),

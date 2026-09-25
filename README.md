@@ -14,8 +14,10 @@ sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
    potřeba jen výjimečně).
 2. Aktivuj plugin v administraci WordPressu — při aktivaci se založí
    taxonomie a sedm výchozích kategorií a naplánuje se WP-Cron úloha.
-3. Vlož shortcody na stránky, kam patří (viz níže) — nejlépe každý na
-   samostatnou stránku.
+3. Vlož všechny tři shortcody (viz níže) na jednu stránku — na
+   skautchlumec.cz je to `/bazar/` s Elementor PRO widgetem Panely, pod
+   každým panelem jeden shortcode. Adresu stránky zkontroluj v
+   **Burza → Nastavení** (prázdné = `/bazar/`).
 4. V administraci pluginu (menu **Burza → Nastavení**) zkontroluj/uprav
    výchozí hodnoty a doplň kontaktní e-mail střediska.
 5. Nastav systémový cron podle sekce **WP-Cron** níže — bez něj by
@@ -31,8 +33,14 @@ sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
 | `[burza_formular]` | Vložení nového nebo editace vlastního inzerátu (jen pro přihlášené). Editace se otevírá jako `?burza_uprava=ID` na stránce s tímhle shortcodem. |
 | `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat / zrušit rezervaci, prodáno, prodloužit, smazat, znovu zveřejnit), u každého počet dní do archivace, u archivovaných do smazání. Formulář `[burza_formular]` má nad sebou nápovědu s pravidly burzy (čísla bere z nastavení). |
 
-Odkaz "upravit" v `[burza_moje]` si stránku s `[burza_formular]` dohledá
-sám podle obsahu webu, není potřeba nic ručně párovat.
+Všechny odkazy burzy (zpět na přehled z detailu, „upravit“ a „Moje
+inzeráty“, odkaz v e-mailu o archivaci, návrat po akcích v přehledu
+a přihlášení) vedou na stránku burzy s parametrem `?burza_panel=vypis|formular|moje`.
+Skript `assets/js/burza-panely.js` podle něj otevře panel, ve kterém je
+příslušný shortcode (hledá nadřazený `[role="tabpanel"]` a klikne na jeho
+titulek) — funguje s panely/záložkami Elementoru i s jinými přístupnými
+záložkami. Úprava inzerátu (`?burza_uprava=ID`) a formulář s chybami po
+odeslání otevřou panel s formulářem automaticky.
 
 Detail jednotlivého inzerátu má vlastní šablonu (`templates/single-burza_inzerat.php`),
 kterou přebije stejnojmenná šablona `single-burza_inzerat.php` v aktivním

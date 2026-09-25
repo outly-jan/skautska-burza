@@ -33,6 +33,7 @@ function skaut_burza_handle_moje_akce(): void {
 	}
 
 	$navrat = remove_query_arg( [ 'burza_moje_akce', 'burza_moje_id', '_wpnonce', 'burza_chyba' ], wp_get_referer() ?: get_permalink() );
+	$navrat = add_query_arg( 'burza_panel', 'moje', $navrat );
 
 	switch ( $akce ) {
 		case 'rezervovat':
@@ -81,11 +82,12 @@ function skaut_burza_shortcode_moje( $atts ): string {
 		return '<p class="skaut-burza-vyzva">' . sprintf(
 			/* translators: %s: odkaz na přihlášení */
 			esc_html__( 'Pro přehled vlastních inzerátů se musíte %s.', 'skaut-burza' ),
-			'<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
+			'<a href="' . esc_url( wp_login_url( add_query_arg( 'burza_panel', 'moje', get_permalink() ) ) ) . '">' . esc_html__( 'přihlásit', 'skaut-burza' ) . '</a>'
 		) . '</p>';
 	}
 
 	wp_enqueue_style( 'skaut-burza', SKAUT_BURZA_URL . 'assets/css/burza.css', [], SKAUT_BURZA_VERSION );
+	skaut_burza_enqueue_panely();
 
 	$user_id = get_current_user_id();
 
@@ -98,8 +100,6 @@ function skaut_burza_shortcode_moje( $atts ): string {
 		'order'          => 'DESC',
 	] );
 
-	$formular_stranka = skaut_burza_stranka_s_shortcode( 'burza_formular' );
-
 	$archivovane = new WP_Query( [
 		'post_type'      => 'burza_inzerat',
 		'author'         => $user_id,
@@ -111,7 +111,7 @@ function skaut_burza_shortcode_moje( $atts ): string {
 
 	ob_start();
 	?>
-	<div class="skaut-burza skaut-burza-moje">
+	<div class="skaut-burza skaut-burza-moje" data-skaut-burza-panel="moje">
 		<?php if ( isset( $_GET['burza_chyba'] ) && 'limit' === $_GET['burza_chyba'] ) : ?>
 			<p class="skaut-burza-chyby"><?php echo esc_html( sprintf(
 				/* translators: %d: maximální počet inzerátů */
@@ -161,9 +161,7 @@ function skaut_burza_shortcode_moje( $atts ): string {
 							<?php
 							$odkazy = [];
 
-							if ( $formular_stranka ) {
-								$odkazy[] = '<a href="' . esc_url( add_query_arg( 'burza_uprava', $id, get_permalink( $formular_stranka ) ) ) . '">' . esc_html__( 'upravit', 'skaut-burza' ) . '</a>';
-							}
+							$odkazy[] = '<a href="' . esc_url( add_query_arg( 'burza_uprava', $id, skaut_burza_url_stranky( 'formular' ) ) ) . '">' . esc_html__( 'upravit', 'skaut-burza' ) . '</a>';
 							if ( ! $rezervovano ) {
 								$odkazy[] = '<a href="' . esc_url( skaut_burza_moje_akce_url( 'rezervovat', $id ) ) . '">' . esc_html__( 'označit jako rezervované', 'skaut-burza' ) . '</a>';
 							} else {

@@ -160,6 +160,11 @@ function skaut_burza_register_settings(): void {
 		'sanitize_callback' => 'absint',
 		'default'           => 3,
 	] );
+	register_setting( 'skaut_burza_nastaveni', 'skaut_burza_url_stranky', [
+		'type'              => 'string',
+		'sanitize_callback' => 'esc_url_raw',
+		'default'           => '',
+	] );
 	register_setting( 'skaut_burza_nastaveni', 'skaut_burza_kontaktni_email', [
 		'type'              => 'string',
 		'sanitize_callback' => 'sanitize_email',
@@ -190,6 +195,13 @@ function skaut_burza_render_nastaveni_stranka(): void {
 				<tr>
 					<th scope="row"><label for="skaut_burza_max_fotek"><?php esc_html_e( 'Maximální počet fotek na inzerát', 'skaut-burza' ); ?></label></th>
 					<td><input type="number" min="1" max="10" id="skaut_burza_max_fotek" name="skaut_burza_max_fotek" value="<?php echo esc_attr( get_option( 'skaut_burza_max_fotek', 3 ) ); ?>"></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="skaut_burza_url_stranky"><?php esc_html_e( 'Adresa stránky burzy', 'skaut-burza' ); ?></label></th>
+					<td>
+						<input type="url" class="regular-text" id="skaut_burza_url_stranky" name="skaut_burza_url_stranky" value="<?php echo esc_attr( get_option( 'skaut_burza_url_stranky', '' ) ); ?>" placeholder="<?php echo esc_attr( home_url( '/bazar/' ) ); ?>">
+						<p class="description"><?php esc_html_e( 'Stránka se shortcody [burza_vypis], [burza_formular] a [burza_moje]. Prázdné = /bazar/. Sem vedou odkazy „Zpět na přehled“, „upravit“, „Moje inzeráty“ i odkaz v e-mailu.', 'skaut-burza' ); ?></p>
+					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="skaut_burza_kontaktni_email"><?php esc_html_e( 'Kontaktní e-mail střediska (do patičky e-mailů)', 'skaut-burza' ); ?></label></th>
