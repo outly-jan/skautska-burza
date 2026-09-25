@@ -145,15 +145,12 @@ function skaut_burza_gated_html( WP_Post $post ): string {
 }
 
 /**
- * Odkaz zpět na stránku s výpisem inzerátů ([burza_vypis]). Pokud návštěvník
+ * Odkaz zpět na stránku burzy (výpis je první panel). Pokud návštěvník
  * přišel z výpisu, JS (burza-kontakt.js) ho vrátí přes historii prohlížeče,
  * ať zůstane zachovaný filtr a stránkování.
  */
 function skaut_burza_zpet_na_vypis_html(): string {
-	$vypis = skaut_burza_stranka_s_shortcode( 'burza_vypis' );
-	if ( ! $vypis ) return '';
-
-	return '<p class="skaut-burza-zpet"><a href="' . esc_url( get_permalink( $vypis ) ) . '" data-skaut-burza-zpet>'
+	return '<p class="skaut-burza-zpet"><a href="' . esc_url( skaut_burza_url_stranky() ) . '" data-skaut-burza-zpet>'
 		. esc_html__( '← Zpět na přehled inzerátů', 'skaut-burza' ) . '</a></p>';
 }
 
@@ -166,35 +163,24 @@ function skaut_burza_prihlaseni_vyzva_html(): string {
 }
 
 /**
- * Najde stránku, na které je vložený daný shortcode (např. [burza_formular]),
- * ať se na ni dá z [burza_moje] odkázat na úpravu bez nutnosti ji ručně
- * nastavovat. Výsledek se cachuje přes transient.
+ * Adresa stránky burzy — jedna stránka se všemi třemi shortcody (výpis,
+ * formulář, moje inzeráty), např. v panelech Elementoru. Nastavuje se
+ * v Burza → Nastavení. $panel (vypis|formular|moje) se předá jako
+ * ?burza_panel=, podle kterého burza-panely.js otevře správný panel.
  */
-function skaut_burza_stranka_s_shortcode( string $shortcode ): int {
-	$cache_key = 'skaut_burza_stranka_' . $shortcode;
-	$cached    = get_transient( $cache_key );
-	if ( false !== $cached ) return (int) $cached;
+function skaut_burza_url_stranky( string $panel = '' ): string {
+	$url = trim( (string) get_option( 'skaut_burza_url_stranky', '' ) );
+	if ( '' === $url ) $url = home_url( '/bazar/' );
+	if ( 0 === strpos( $url, '/' ) ) $url = home_url( $url );
 
-	global $wpdb;
-	$like = '%' . $wpdb->esc_like( '[' . $shortcode ) . '%';
-	$id   = (int) $wpdb->get_var( $wpdb->prepare(
-		"SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_content LIKE %s LIMIT 1",
-		$like
-	) );
-
-	set_transient( $cache_key, $id, HOUR_IN_SECONDS );
-	return $id;
+	return $panel ? add_query_arg( 'burza_panel', $panel, $url ) : $url;
 }
 
 /**
- * Zruší cache z skaut_burza_stranka_s_shortcode() při uložení jakékoli
- * stránky, ať se hned projeví přesun [burza_formular]/[burza_moje] na
- * jinou stránku.
+ * Skript, který na stránce s panely otevře panel s požadovaným shortcodem.
  */
-function skaut_burza_vycistit_stranka_cache(): void {
-	delete_transient( 'skaut_burza_stranka_burza_formular' );
-	delete_transient( 'skaut_burza_stranka_burza_moje' );
-	delete_transient( 'skaut_burza_stranka_burza_vypis' );
+function skaut_burza_enqueue_panely(): void {
+	wp_enqueue_script( 'skaut-burza-panely', SKAUT_BURZA_URL . 'assets/js/burza-panely.js', [], SKAUT_BURZA_VERSION, true );
 }
 
 function skaut_burza_template_include( string $template ): string {

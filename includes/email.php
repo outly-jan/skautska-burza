@@ -68,8 +68,7 @@ function skaut_burza_odeslat_info_archivace( int $post_id ): void {
 	$autor = get_userdata( (int) $post->post_author );
 	if ( ! $autor || ! $autor->user_email ) return;
 
-	$stranka_moje = skaut_burza_stranka_s_shortcode( 'burza_moje' );
-	$odkaz        = $stranka_moje ? get_permalink( $stranka_moje ) : home_url( '/' );
+	$odkaz = skaut_burza_url_stranky( 'moje' );
 
 	$predmet = sprintf(
 		/* translators: %s: název inzerátu */
