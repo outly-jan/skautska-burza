@@ -76,6 +76,7 @@ function skaut_burza_shortcode_vypis( $atts ): string {
 					$rezervovano = 'burza_rezervovano' === $post_obj->post_status;
 					?>
 					<a class="skaut-burza-dlazdice" href="<?php the_permalink(); ?>">
+						<h3 class="skaut-burza-dlazdice-nazev"><?php the_title(); ?></h3>
 						<?php if ( $rezervovano ) : ?>
 							<span class="skaut-burza-stitek-rezervovano"><?php esc_html_e( 'Rezervováno', 'skaut-burza' ); ?></span>
 						<?php endif; ?>
@@ -86,11 +87,12 @@ function skaut_burza_shortcode_vypis( $atts ): string {
 								: '<span class="skaut-burza-bez-fotky">' . esc_html__( 'Bez fotky', 'skaut-burza' ) . '</span>';
 							?>
 						</div>
-						<h3 class="skaut-burza-dlazdice-nazev"><?php the_title(); ?></h3>
 						<?php if ( $velikost ) : ?>
-							<p class="skaut-burza-dlazdice-velikost"><?php echo esc_html( $velikost ); ?></p>
+							<p class="skaut-burza-dlazdice-velikost"><strong><?php esc_html_e( 'Velikost:', 'skaut-burza' ); ?></strong> <?php echo esc_html( $velikost ); ?></p>
 						<?php endif; ?>
-						<p class="skaut-burza-dlazdice-cena"><?php echo esc_html( $cena ); ?></p>
+						<p class="skaut-burza-dlazdice-cena"><strong><?php esc_html_e( 'Cena:', 'skaut-burza' ); ?></strong> <?php echo esc_html( skaut_burza_cena_text( $cena ) ); ?></p>
+						<?php /* Celá dlaždice je odkaz, "tlačítko" je jen vizuální (odkaz v odkazu HTML nedovoluje). */ ?>
+						<span class="skaut-burza-dlazdice-tlacitko"><?php esc_html_e( 'Detail', 'skaut-burza' ); ?></span>
 					</a>
 				<?php endwhile; ?>
 			</div>

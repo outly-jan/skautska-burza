@@ -51,7 +51,7 @@ function skaut_burza_privacy_exporter( string $email_address, int $stranka = 1 )
 				[ 'name' => __( 'Popis', 'skaut-burza' ), 'value' => $post->post_content ],
 				[ 'name' => __( 'Velikost', 'skaut-burza' ), 'value' => (string) get_post_meta( $post->ID, '_burza_velikost', true ) ],
 				[ 'name' => __( 'Stav věci', 'skaut-burza' ), 'value' => skaut_burza_stav_popisek( (string) get_post_meta( $post->ID, '_burza_stav', true ) ) ],
-				[ 'name' => __( 'Cena', 'skaut-burza' ), 'value' => (string) get_post_meta( $post->ID, '_burza_cena', true ) ],
+				[ 'name' => __( 'Cena', 'skaut-burza' ), 'value' => skaut_burza_cena_text( get_post_meta( $post->ID, '_burza_cena', true ) ) ],
 				[ 'name' => __( 'Telefon', 'skaut-burza' ), 'value' => (string) get_post_meta( $post->ID, '_burza_telefon', true ) ],
 				[ 'name' => __( 'E-mail', 'skaut-burza' ), 'value' => (string) get_post_meta( $post->ID, '_burza_email', true ) ],
 				[ 'name' => __( 'Datum vložení', 'skaut-burza' ), 'value' => $post->post_date ],

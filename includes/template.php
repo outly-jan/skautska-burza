@@ -13,6 +13,18 @@ function skaut_burza_stav_popisek( string $klic ): string {
 	return $stavy[ $klic ] ?? '';
 }
 
+/**
+ * Cena k zobrazení: celé číslo → "1 500 Kč", 0 → "zdarma". Starší
+ * inzeráty mají cenu jako volný text — ten se zobrazí beze změny.
+ */
+function skaut_burza_cena_text( $cena ): string {
+	$cena = trim( (string) $cena );
+	if ( '' === $cena || ! ctype_digit( $cena ) ) return $cena;
+
+	$castka = (int) $cena;
+	return 0 === $castka ? __( 'zdarma', 'skaut-burza' ) : number_format_i18n( $castka ) . ' Kč';
+}
+
 function skaut_burza_foto_html( int $attachment_id, string $velikost ): string {
 	if ( ! $attachment_id ) return '';
 	return wp_get_attachment_image( $attachment_id, $velikost, false, [ 'loading' => 'lazy' ] );
@@ -53,7 +65,7 @@ function skaut_burza_verejna_data_html( WP_Post $post ): string {
 			<?php if ( $stav ) : ?>
 				<li><strong><?php esc_html_e( 'Stav:', 'skaut-burza' ); ?></strong> <?php echo esc_html( skaut_burza_stav_popisek( $stav ) ); ?></li>
 			<?php endif; ?>
-			<li><strong><?php esc_html_e( 'Cena:', 'skaut-burza' ); ?></strong> <?php echo esc_html( $cena ); ?></li>
+			<li><strong><?php esc_html_e( 'Cena:', 'skaut-burza' ); ?></strong> <?php echo esc_html( skaut_burza_cena_text( $cena ) ); ?></li>
 			<li><strong><?php esc_html_e( 'Vloženo:', 'skaut-burza' ); ?></strong> <?php echo esc_html( get_the_date( '', $post ) ); ?></li>
 		</ul>
 	</div>
