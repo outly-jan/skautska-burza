@@ -4,6 +4,10 @@ Samostatný WordPress plugin **Skautská burza** pro web skautchlumec.cz.
 Původně vznikl jako složka `skautska-burza/` v repozitáři
 `outly-jan/vlcci-svetylka`, odkud byl i s historií přesunut sem.
 
+## Web
+- Burza je na jedné stránce `/bazar/` (Elementor PRO Panely, v každém panelu
+  jeden shortcode); odkazy vedou na ni s `?burza_panel=vypis|formular|moje`
+
 ## Workflow
 - Po každé smysluplné změně: commit → push → PR → squash merge do `main`
 - Commity a PR popisky piš česky
@@ -24,5 +28,8 @@ Pokud PHP hlásí chybu, nesmíš mergovat.
   (FTP), nikdy v něm přes git neměň `CHANGE_ME`
 - Webhook nestahuje `.github/`, `CLAUDE.md` ani sám sebe; vše ostatní v repu
   se nasadí do `wp-content/plugins/skautska-burza/`
+- Po mergi ověř v logu Actions, že deploy prošel a velikosti souborů
+  odpovídají commitu (`git cat-file -s <sha>:<soubor>`); 522 od Cloudflare
+  se opakuje automaticky
 - Na FTP je správná cesta `/public_html/wp-content/plugins/skautska-burza/`;
   složka `/wp-content/plugins/` mimo `public_html` je chybná, nepoužívat

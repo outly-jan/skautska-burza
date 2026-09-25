@@ -29,9 +29,9 @@ sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
 
 | Shortcode | Použití |
 |---|---|
-| `[burza_vypis]` | Výpis aktivních inzerátů — dlaždice, filtr podle kategorie, fulltext, stránkování. |
-| `[burza_formular]` | Vložení nového nebo editace vlastního inzerátu (jen pro přihlášené). Editace se otevírá jako `?burza_uprava=ID` na stránce s tímhle shortcodem. |
-| `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat / zrušit rezervaci, prodáno, prodloužit, smazat, znovu zveřejnit), u každého počet dní do archivace, u archivovaných do smazání. Formulář `[burza_formular]` má nad sebou nápovědu s pravidly burzy (čísla bere z nastavení). |
+| `[burza_vypis]` | Výpis aktivních inzerátů — dlaždice (název, fotka, velikost, cena, tlačítko Detail, štítek Rezervováno), filtr podle kategorie, fulltext, stránkování. |
+| `[burza_formular]` | Vložení nového nebo úprava vlastního inzerátu (jen pro přihlášené). Nad formulářem pro nový inzerát je nápověda s pravidly burzy (čísla bere z nastavení). Úprava se otevírá jako `?burza_uprava=ID`. |
+| `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat / zrušit rezervaci, prodáno, prodloužit platnost, smazat; u archivovaných znovu zveřejnit). U aktivních počet dní do archivace (posledních 14 dní červeně), u archivovaných počet dní do smazání. |
 
 Všechny odkazy burzy (zpět na přehled z detailu, „upravit“ a „Moje
 inzeráty“, odkaz v e-mailu o archivaci, návrat po akcích v přehledu
@@ -42,9 +42,27 @@ titulek) — funguje s panely/záložkami Elementoru i s jinými přístupnými
 záložkami. Úprava inzerátu (`?burza_uprava=ID`) a formulář s chybami po
 odeslání otevřou panel s formulářem automaticky.
 
-Detail jednotlivého inzerátu má vlastní šablonu (`templates/single-burza_inzerat.php`),
-kterou přebije stejnojmenná šablona `single-burza_inzerat.php` v aktivním
-tématu, pokud existuje.
+Detail jednotlivého inzerátu (`/inzerat/<slug>/`) má vlastní šablonu
+(`templates/single-burza_inzerat.php`), kterou přebije stejnojmenná šablona
+`single-burza_inzerat.php` v aktivním tématu, pokud existuje. Detail
+ukazuje hlavní fotku s údaji vedle ní, pro přihlášené navíc popis, další
+fotky, jméno a příjmení prodávajícího (z WP profilu, ne přezdívka),
+telefon a e-mail. Nahoře i dole je odkaz zpět na přehled.
+
+### Cena
+
+Ve formuláři přepínač: částka v celých Kč (0 = zdarma), „Dohodou“, nebo
+„Za odvoz“. Do `_burza_cena` se ukládá číslo, `dohodou` nebo `za_odvoz`;
+zobrazuje se jako „1 500 Kč“, „zdarma“, „dohodou“, „za odvoz“ (viz
+`skaut_burza_cena_text()`). Starší inzeráty s cenou zapsanou volným textem
+se zobrazují beze změny.
+
+### Limity
+
+- max. 10 aktivních inzerátů na uživatele, nový inzerát nejdřív 30 s po předchozím,
+- max. 3 fotky (nastavitelné), JPG/PNG/WEBP, max. 3 MB na soubor (prohlížeč
+  fotky před odesláním sám zmenší na delší stranu 1600 px, takže limit
+  běžně nepotká).
 
 ---
 
@@ -134,8 +152,8 @@ regeneruje. Archivované inzeráty starší 6 měsíců se jednou měsíčně
 nenávratně smažou i s fotkami.
 
 Všechny výchozí lhůty (dny do první výzvy, interval dalších výzev, počet
-výzev před archivací, max. počet fotek) a kontaktní e-mail střediska se
-dají upravit v **Burza → Nastavení**.
+výzev před archivací), max. počet fotek, adresa stránky burzy a kontaktní
+e-mail střediska se dají upravit v **Burza → Nastavení**.
 
 ## Ochrana osobních údajů
 
@@ -155,9 +173,19 @@ Po každém mergi do větve `main` se spustí GitHub Actions workflow
 https://skautchlumec.cz/wp-content/plugins/skautska-burza/deploy-webhook.php
 ```
 
-s hlavičkou `X-Deploy-Token` (hodnota z GitHub secret `DEPLOY_SECRET`).
-Webhook si přes GitHub API načte aktuální seznam souborů v repozitáři a
-stáhne je do složky pluginu — kromě `.github/`, `CLAUDE.md` a sebe sama.
+s hlavičkou `X-Deploy-Token` (hodnota z GitHub secret `DEPLOY_SECRET`)
+a `X-Deploy-Sha` (commit, který se má nasadit). Webhook si přes GitHub API
+načte seznam souborů v repozitáři přesně pro tento commit a stáhne je do
+složky pluginu — kromě `.github/`, `CLAUDE.md` a sebe sama. Stahování podle
+SHA (ne podle větve) je nutné: raw.githubusercontent.com drží soubory
+z větve několik minut v cache.
+
+- Výstup webhooku je v logu kroku „Zavolat deploy webhook“: `OK — datum — SHA`
+  a seznam souborů s velikostmi. Chybí-li za datem SHA, běží na serveru
+  starý webhook.
+- Server za Cloudflare občas při prvním pokusu vrátí 522 — `curl` volání
+  až třikrát zopakuje.
+- Deploy jde spustit i ručně: **Actions → Deploy na server → Run workflow**.
 
 ### Prvotní zprovoznění
 
