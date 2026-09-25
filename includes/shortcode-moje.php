@@ -146,7 +146,7 @@ function skaut_burza_shortcode_moje( $atts ): string {
 						<?php if ( $rezervovano ) : ?>
 							<span class="skaut-burza-stitek-rezervovano"><?php esc_html_e( 'Rezervováno', 'skaut-burza' ); ?></span>
 						<?php endif; ?>
-						<span class="skaut-burza-moje-cena"><?php echo esc_html( $cena ); ?></span>
+						<span class="skaut-burza-moje-cena"><?php echo esc_html( skaut_burza_cena_text( $cena ) ); ?></span>
 						<span class="skaut-burza-moje-platnost<?php echo $brzy ? ' skaut-burza-moje-platnost-brzy' : ''; ?>">
 							<?php
 							echo esc_html( $zbyva_dni > 0
