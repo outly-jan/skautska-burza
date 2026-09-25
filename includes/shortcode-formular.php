@@ -91,6 +91,7 @@ function skaut_burza_handle_formular_submit(): void {
 	$kategorie = absint( $_POST['burza_kategorie'] ?? 0 );
 	$velikost  = sanitize_text_field( wp_unslash( $_POST['burza_velikost'] ?? '' ) );
 	$stav      = skaut_burza_sanitize_stav( wp_unslash( $_POST['burza_stav'] ?? '' ) );
+	$cena_typ  = sanitize_key( wp_unslash( $_POST['burza_cena_typ'] ?? 'castka' ) );
 	$cena      = trim( sanitize_text_field( wp_unslash( $_POST['burza_cena'] ?? '' ) ) );
 	$telefon   = sanitize_text_field( wp_unslash( $_POST['burza_telefon'] ?? '' ) );
 	$email     = sanitize_email( wp_unslash( $_POST['burza_email'] ?? '' ) );
@@ -99,8 +100,11 @@ function skaut_burza_handle_formular_submit(): void {
 	$chyby = [];
 	if ( '' === $nazev ) $chyby[] = __( 'Vyplňte název věci.', 'skaut-burza' );
 	if ( ! $kategorie || ! term_exists( $kategorie, 'burza_kategorie' ) ) $chyby[] = __( 'Vyberte kategorii.', 'skaut-burza' );
-	if ( '' === $cena ) {
-		$chyby[] = __( 'Vyplňte cenu v Kč (0 = zdarma).', 'skaut-burza' );
+	if ( array_key_exists( $cena_typ, skaut_burza_cena_volby() ) ) {
+		// Dohodou / za odvoz — případně vyplněná částka se ignoruje.
+		$cena = $cena_typ;
+	} elseif ( '' === $cena ) {
+		$chyby[] = __( 'Vyplňte cenu v Kč (0 = zdarma), nebo zvolte „Dohodou“ či „Za odvoz“.', 'skaut-burza' );
 	} elseif ( ! ctype_digit( $cena ) ) {
 		$chyby[] = __( 'Cena musí být celé číslo v Kč, bez dalšího textu (0 = zdarma).', 'skaut-burza' );
 	} else {
@@ -252,6 +256,7 @@ function skaut_burza_shortcode_formular( $atts ): string {
 
 	wp_enqueue_style( 'skaut-burza', SKAUT_BURZA_URL . 'assets/css/burza.css', [], SKAUT_BURZA_VERSION );
 	wp_enqueue_script( 'skaut-burza-upload', SKAUT_BURZA_URL . 'assets/js/burza-upload.js', [], SKAUT_BURZA_VERSION, true );
+	wp_enqueue_script( 'skaut-burza-formular', SKAUT_BURZA_URL . 'assets/js/burza-formular.js', [], SKAUT_BURZA_VERSION, true );
 
 	$user_id    = get_current_user_id();
 	$post_id    = isset( $_GET['burza_uprava'] ) ? absint( $_GET['burza_uprava'] ) : 0;
@@ -281,8 +286,10 @@ function skaut_burza_shortcode_formular( $atts ): string {
 		$popis     = $po_postu && isset( $_POST['burza_popis'] ) ? sanitize_textarea_field( wp_unslash( $_POST['burza_popis'] ) ) : $existujici->post_content;
 		$velikost  = $hodnota( 'burza_velikost', (string) get_post_meta( $post_id, '_burza_velikost', true ) );
 		$stav      = $hodnota( 'burza_stav', (string) get_post_meta( $post_id, '_burza_stav', true ) );
+		$ulozena   = (string) get_post_meta( $post_id, '_burza_cena', true );
+		$cena_typ  = $hodnota( 'burza_cena_typ', skaut_burza_cena_typ( $ulozena ) );
 		// Starší inzeráty mají cenu jako text ("5 Kč") — do číselného pole jen číslice.
-		$cena      = $hodnota( 'burza_cena', preg_replace( '/\D+/', '', (string) get_post_meta( $post_id, '_burza_cena', true ) ) );
+		$cena      = $hodnota( 'burza_cena', 'castka' === skaut_burza_cena_typ( $ulozena ) ? preg_replace( '/\D+/', '', $ulozena ) : '' );
 		$telefon   = $hodnota( 'burza_telefon', (string) get_post_meta( $post_id, '_burza_telefon', true ) );
 		$email     = $hodnota( 'burza_email', (string) get_post_meta( $post_id, '_burza_email', true ) );
 		$terms     = wp_get_post_terms( $post_id, 'burza_kategorie', [ 'fields' => 'ids' ] );
@@ -294,6 +301,7 @@ function skaut_burza_shortcode_formular( $atts ): string {
 		$popis     = $po_postu && isset( $_POST['burza_popis'] ) ? sanitize_textarea_field( wp_unslash( $_POST['burza_popis'] ) ) : '';
 		$velikost  = $hodnota( 'burza_velikost' );
 		$stav      = $hodnota( 'burza_stav' );
+		$cena_typ  = $hodnota( 'burza_cena_typ', 'castka' );
 		$cena      = $hodnota( 'burza_cena' );
 		$telefon   = $hodnota( 'burza_telefon', skaut_burza_prefill_telefon( $user_id ) );
 		$email     = $hodnota( 'burza_email', wp_get_current_user()->user_email );
@@ -366,10 +374,21 @@ function skaut_burza_shortcode_formular( $atts ): string {
 			</p>
 
 			<p>
-				<label for="burza_cena"><?php esc_html_e( 'Cena v Kč', 'skaut-burza' ); ?></label>
-				<span class="skaut-burza-cena-pole">
-					<input type="number" id="burza_cena" name="burza_cena" value="<?php echo esc_attr( $cena ); ?>" min="0" max="1000000" step="1" inputmode="numeric" placeholder="<?php esc_attr_e( 'celé číslo, 0 = zdarma', 'skaut-burza' ); ?>" required>
-					<span class="skaut-burza-cena-mena">Kč</span>
+				<span class="skaut-burza-label"><?php esc_html_e( 'Cena', 'skaut-burza' ); ?></span>
+				<span class="skaut-burza-cena-volby">
+					<label class="skaut-burza-cena-volba">
+						<input type="radio" name="burza_cena_typ" value="castka" <?php checked( ! array_key_exists( $cena_typ, skaut_burza_cena_volby() ) ); ?>>
+						<span class="skaut-burza-cena-pole">
+							<input type="number" id="burza_cena" name="burza_cena" value="<?php echo esc_attr( $cena ); ?>" min="0" max="1000000" step="1" inputmode="numeric" placeholder="<?php esc_attr_e( 'celé číslo, 0 = zdarma', 'skaut-burza' ); ?>" aria-label="<?php esc_attr_e( 'Cena v Kč', 'skaut-burza' ); ?>">
+							<span class="skaut-burza-cena-mena">Kč</span>
+						</span>
+					</label>
+					<?php foreach ( skaut_burza_cena_volby() as $klic => $popisek ) : ?>
+						<label class="skaut-burza-cena-volba">
+							<input type="radio" name="burza_cena_typ" value="<?php echo esc_attr( $klic ); ?>" <?php checked( $cena_typ, $klic ); ?>>
+							<?php echo esc_html( $popisek ); ?>
+						</label>
+					<?php endforeach; ?>
 				</span>
 			</p>
 

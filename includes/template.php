@@ -14,11 +14,33 @@ function skaut_burza_stav_popisek( string $klic ): string {
 }
 
 /**
- * Cena k zobrazení: celé číslo → "1 500 Kč", 0 → "zdarma". Starší
- * inzeráty mají cenu jako volný text — ten se zobrazí beze změny.
+ * Volby ceny, které nejsou částkou (klíč uložený v _burza_cena => popisek).
+ */
+function skaut_burza_cena_volby(): array {
+	return [
+		'dohodou'  => __( 'Dohodou', 'skaut-burza' ),
+		'za_odvoz' => __( 'Za odvoz', 'skaut-burza' ),
+	];
+}
+
+/**
+ * Typ uložené ceny: "castka", nebo klíč ze skaut_burza_cena_volby().
+ * Rozpozná i starší inzeráty s cenou zapsanou volným textem.
+ */
+function skaut_burza_cena_typ( $cena ): string {
+	$normalizovano = str_replace( ' ', '_', mb_strtolower( trim( (string) $cena ) ) );
+	return array_key_exists( $normalizovano, skaut_burza_cena_volby() ) ? $normalizovano : 'castka';
+}
+
+/**
+ * Cena k zobrazení: celé číslo → "1 500 Kč", 0 → "zdarma", dohodou /
+ * za odvoz → popisek. Starší inzeráty s cenou jako volným textem se
+ * zobrazí beze změny.
  */
 function skaut_burza_cena_text( $cena ): string {
 	$cena = trim( (string) $cena );
+	$typ  = skaut_burza_cena_typ( $cena );
+	if ( 'castka' !== $typ ) return mb_strtolower( skaut_burza_cena_volby()[ $typ ] );
 	if ( '' === $cena || ! ctype_digit( $cena ) ) return $cena;
 
 	$castka = (int) $cena;
