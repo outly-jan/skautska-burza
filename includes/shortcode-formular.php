@@ -237,7 +237,8 @@ function skaut_burza_shortcode_formular( $atts ): string {
 		}
 	}
 
-	$po_postu = ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) === 'POST' );
+	// Jen POST tohoto formuláře — na stejné stránce je i formulář nálezu se stejně pojmenovanými poli.
+	$po_postu = ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) === 'POST' ) && isset( $_POST['skaut_burza_formular_nonce'] );
 	$hodnota  = static function ( string $klic, string $vychozi = '' ) use ( $po_postu ) {
 		if ( $po_postu && isset( $_POST[ $klic ] ) ) {
 			return sanitize_text_field( wp_unslash( $_POST[ $klic ] ) );

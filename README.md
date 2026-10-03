@@ -74,8 +74,10 @@ Věci nalezené na akcích. Vkládají je jen **vedoucí** — uživatelé, kte�
 mohou publikovat příspěvky (role autor a vyšší, i když mají vedle toho
 další role). Ostatní přihlášení uvidí místo formuláře upozornění.
 
-Stránka nálezů (na skautchlumec.cz `/nalezy/`, adresa v **Burza →
-Nastavení**) má dva shortcody do panelů Elementoru:
+Nálezy jsou na stejné stránce jako burza (na skautchlumec.cz `/bazar/`)
+jako dva další panely Elementoru. Jiná stránka se dá zadat v **Burza →
+Nastavení → Adresa stránky nálezů** (prázdné = stránka burzy).
+Shortcody:
 
 | Shortcode | Použití |
 |---|---|
@@ -182,7 +184,7 @@ nenávratně smažou i s fotkami.
 
 Všechny výchozí lhůty (dny do první výzvy, interval dalších výzev, počet
 výzev před archivací), max. počet fotek, adresa stránky burzy, adresa
-stránky nálezů (výchozí `/nalezy/`), adresa přihlašovací stránky
+stránky nálezů (výchozí = stránka burzy), adresa přihlašovací stránky
 (výchozí `/prihlasit/`, odkazy „přihlásit“ v burze) a kontaktní
 e-mail střediska se dají upravit v **Burza → Nastavení**.
 
