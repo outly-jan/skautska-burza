@@ -103,6 +103,14 @@
 		} )();
 	}
 
+	// Návrat tlačítkem Zpět může stránku obnovit z paměti prohlížeče (bfcache)
+	// i s formulářem vyplněným údaji předchozího inzerátu/nálezu — načíst znovu.
+	window.addEventListener( 'pageshow', function ( e ) {
+		if ( e.persisted && document.querySelector( '.skaut-burza form' ) ) {
+			window.location.reload();
+		}
+	} );
+
 	if ( document.readyState === 'loading' ) {
 		document.addEventListener( 'DOMContentLoaded', spust );
 	} else {

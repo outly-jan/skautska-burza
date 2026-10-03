@@ -212,7 +212,11 @@ function skaut_burza_handle_nalez_submit(): void {
 
 	$foto_chyby = skaut_burza_ulozit_fotky_z_formulare( $vysledek_id );
 
-	$cil = add_query_arg( 'burza_ulozeno', '1', get_permalink( $vysledek_id ) );
+	// Nový nález: zpět na prázdný formulář s potvrzením, ať jde po akci
+	// zadávat nálezy jeden za druhým. Úprava: na detail upraveného nálezu.
+	$cil = $je_editace
+		? add_query_arg( 'burza_ulozeno', '1', get_permalink( $vysledek_id ) )
+		: add_query_arg( 'burza_nalez_ulozeno', $vysledek_id, skaut_burza_url_nalezu( 'nalez_formular' ) );
 	if ( $foto_chyby > 0 ) {
 		$cil = add_query_arg( 'burza_foto_chyby', $foto_chyby, $cil );
 	}
@@ -527,6 +531,28 @@ function skaut_burza_shortcode_nalez_formular( $atts ): string {
 			<h2><?php esc_html_e( 'Úprava nálezu', 'skaut-burza' ); ?></h2>
 		<?php endif; ?>
 
+		<?php
+		$ulozeny = isset( $_GET['burza_nalez_ulozeno'] ) ? get_post( absint( $_GET['burza_nalez_ulozeno'] ) ) : null;
+		if ( ! $je_editace && $ulozeny && 'burza_nalez' === $ulozeny->post_type && skaut_burza_je_autor_nebo_admin( $ulozeny->ID ) ) :
+			?>
+			<p class="skaut-burza-ok">
+				<?php echo esc_html( sprintf(
+					/* translators: %s: název nálezu */
+					__( 'Nález „%s“ byl uložen.', 'skaut-burza' ),
+					$ulozeny->post_title
+				) ); ?>
+				<a href="<?php echo esc_url( get_permalink( $ulozeny ) ); ?>"><?php esc_html_e( 'Zobrazit nález', 'skaut-burza' ); ?></a>
+				<?php if ( ! empty( $_GET['burza_foto_chyby'] ) ) : ?>
+					<br><?php echo esc_html( sprintf(
+						/* translators: %d: počet fotek */
+						__( 'Některé fotky (%d) se nepodařilo nahrát.', 'skaut-burza' ),
+						absint( $_GET['burza_foto_chyby'] )
+					) ); ?>
+				<?php endif; ?>
+				<br><?php esc_html_e( 'Další nález můžete vložit rovnou níže.', 'skaut-burza' ); ?>
+			</p>
+		<?php endif; ?>
+
 		<?php if ( $chyby ) : ?>
 			<ul class="skaut-burza-chyby">
 				<?php foreach ( $chyby as $c ) : ?>
@@ -550,7 +576,7 @@ function skaut_burza_shortcode_nalez_formular( $atts ): string {
 			</div>
 		<?php endif; ?>
 
-		<form method="post" enctype="multipart/form-data" class="skaut-burza-form">
+		<form method="post" enctype="multipart/form-data" class="skaut-burza-form" autocomplete="off">
 			<?php wp_nonce_field( 'skaut_burza_nalez_formular', 'skaut_burza_nalez_nonce' ); ?>
 			<input type="hidden" name="burza_post_id" value="<?php echo esc_attr( $post_id ); ?>">
 
