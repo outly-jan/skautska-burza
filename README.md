@@ -32,7 +32,7 @@ sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
 |---|---|
 | `[burza_vypis]` | Výpis aktivních inzerátů — dlaždice (název, fotka, velikost, cena, tlačítko Detail, štítek Rezervováno), filtr podle kategorie, fulltext, stránkování. |
 | `[burza_formular]` | Vložení nového nebo úprava vlastního inzerátu (jen pro přihlášené). Nad formulářem pro nový inzerát je nápověda s pravidly burzy (čísla bere z nastavení). Úprava se otevírá jako `?burza_uprava=ID`. |
-| `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat / zrušit rezervaci, prodáno, prodloužit platnost, smazat; u archivovaných znovu zveřejnit). U aktivních počet dní do archivace (posledních 14 dní červeně), u archivovaných počet dní do smazání. |
+| `[burza_moje]` | Přehled vlastních inzerátů s akcemi (upravit, rezervovat / zrušit rezervaci, prodáno, prodloužit platnost, smazat; u archivovaných znovu zveřejnit). U aktivních počet dní do archivace (posledních 14 dní červeně), u archivovaných počet dní do smazání. Administrátor (`manage_options`) vidí pod svými inzeráty i sekci **Inzeráty ostatních uživatelů** s odkazy upravit / smazat. |
 
 Všechny odkazy burzy (zpět na přehled z detailu, „upravit“ a „Moje
 inzeráty“, odkaz v e-mailu o archivaci, návrat po akcích v přehledu
