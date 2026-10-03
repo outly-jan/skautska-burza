@@ -101,9 +101,16 @@ function skaut_burza_zpracuj_upload( array $file, int $post_id ) {
 	// výšku, 1200×1600 po zmenšení v prohlížeči) vůbec nevygeneruje.
 	$editor = wp_get_image_editor( $sideload['file'] );
 	if ( ! is_wp_error( $editor ) ) {
+		// Fotka nezmenšená v prohlížeči (starý prohlížeč, bez JS) může mít
+		// orientaci jen v EXIF — ten se uložením ztratí, proto ji narovnat tady.
+		$zmeneno = method_exists( $editor, 'maybe_exif_rotate' ) && true === $editor->maybe_exif_rotate();
+
 		$rozmery = $editor->get_size();
 		if ( $rozmery['width'] > skaut_burza_max_sirka_fotky() ) {
 			$editor->resize( skaut_burza_max_sirka_fotky(), null, false );
+			$zmeneno = true;
+		}
+		if ( $zmeneno ) {
 			$editor->save( $sideload['file'] );
 		}
 	}
