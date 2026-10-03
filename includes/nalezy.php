@@ -87,12 +87,13 @@ function skaut_burza_je_vedouci(): bool {
 }
 
 /**
- * Adresa stránky nálezů (Burza → Nastavení, výchozí /nalezy/). $panel
- * (nalezy|nalez_formular) se předá jako ?burza_panel= pro burza-panely.js.
+ * Adresa stránky nálezů (Burza → Nastavení). Výchozí je stránka burzy —
+ * nálezy jsou na ní jako další panely. $panel (nalezy|nalez_formular)
+ * se předá jako ?burza_panel= pro burza-panely.js.
  */
 function skaut_burza_url_nalezu( string $panel = '' ): string {
 	$url = trim( (string) get_option( 'skaut_burza_url_nalezy', '' ) );
-	if ( '' === $url ) $url = home_url( '/nalezy/' );
+	if ( '' === $url ) return skaut_burza_url_stranky( $panel );
 	if ( 0 === strpos( $url, '/' ) ) $url = home_url( $url );
 
 	return $panel ? add_query_arg( 'burza_panel', $panel, $url ) : $url;
@@ -743,7 +744,7 @@ function skaut_burza_nalez_prihlaseni_vyzva_html( int $post_id ): string {
 }
 
 function skaut_burza_nalez_zpet_html(): string {
-	return '<p class="skaut-burza-zpet"><a href="' . esc_url( skaut_burza_url_nalezu() ) . '" data-skaut-burza-zpet>'
+	return '<p class="skaut-burza-zpet"><a href="' . esc_url( skaut_burza_url_nalezu( 'nalezy' ) ) . '" data-skaut-burza-zpet>'
 		. esc_html__( '← Zpět na přehled nálezů', 'skaut-burza' ) . '</a></p>';
 }
 

@@ -7,8 +7,8 @@ Původně vznikl jako složka `skautska-burza/` v repozitáři
 ## Web
 - Burza je na jedné stránce `/bazar/` (Elementor PRO Panely, v každém panelu
   jeden shortcode); odkazy vedou na ni s `?burza_panel=vypis|formular|moje`
-- Nálezy jsou na stránce `/nalezy/` (`[burza_nalezy]`, `[burza_nalez_formular]`,
-  panely `nalezy|nalez_formular`); vkládají je jen vedoucí (`publish_posts`)
+- Nálezy jsou na téže stránce `/bazar/` jako další dva panely (`[burza_nalezy]`,
+  `[burza_nalez_formular]`, panely `nalezy|nalez_formular`); vkládají je jen vedoucí (`publish_posts`)
 
 ## Workflow
 - Po každé smysluplné změně: commit → push → PR → squash merge do `main`

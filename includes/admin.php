@@ -216,8 +216,8 @@ function skaut_burza_render_nastaveni_stranka(): void {
 				<tr>
 					<th scope="row"><label for="skaut_burza_url_nalezy"><?php esc_html_e( 'Adresa stránky nálezů', 'skaut-burza' ); ?></label></th>
 					<td>
-						<input type="url" class="regular-text" id="skaut_burza_url_nalezy" name="skaut_burza_url_nalezy" value="<?php echo esc_attr( get_option( 'skaut_burza_url_nalezy', '' ) ); ?>" placeholder="<?php echo esc_attr( home_url( '/nalezy/' ) ); ?>">
-						<p class="description"><?php esc_html_e( 'Stránka se shortcody [burza_nalezy] a [burza_nalez_formular]. Prázdné = /nalezy/.', 'skaut-burza' ); ?></p>
+						<input type="url" class="regular-text" id="skaut_burza_url_nalezy" name="skaut_burza_url_nalezy" value="<?php echo esc_attr( get_option( 'skaut_burza_url_nalezy', '' ) ); ?>" placeholder="<?php echo esc_attr( skaut_burza_url_stranky() ); ?>">
+						<p class="description"><?php esc_html_e( 'Stránka se shortcody [burza_nalezy] a [burza_nalez_formular]. Prázdné = stejná stránka jako burza (nálezy jako další panely).', 'skaut-burza' ); ?></p>
 					</td>
 				</tr>
 				<tr>
