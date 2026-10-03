@@ -336,3 +336,17 @@
 .skaut-burza-detail .skaut-burza-disclaimer + .skaut-burza-zpet {
 	margin-top: 1.5em;
 }
+
+.skaut-burza-polozka {
+	display: flex;
+	flex-direction: column;
+}
+
+.skaut-burza-polozka .skaut-burza-dlazdice {
+	flex: 1;
+}
+
+.skaut-burza-nalez-akce {
+	font-size: 0.85em;
+	margin: 0.4em 0 0;
+}

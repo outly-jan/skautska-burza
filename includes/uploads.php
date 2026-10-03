@@ -130,6 +130,53 @@ function skaut_burza_zpracuj_upload( array $file, int $post_id ) {
 }
 
 /**
+ * Fotky z odeslaného formuláře (inzerát i nález): odebere zaškrtnuté
+ * (burza_odebrat_foto[]), nahraje nové (burza_fotky[]) do limitu
+ * a uloží seznam do _burza_fotky. Vrátí počet fotek, které se nepodařilo nahrát.
+ */
+function skaut_burza_ulozit_fotky_z_formulare( int $post_id ): int {
+	$fotky = get_post_meta( $post_id, '_burza_fotky', true );
+	if ( ! is_array( $fotky ) ) $fotky = [];
+
+	$odebrat = array_map( 'absint', (array) ( $_POST['burza_odebrat_foto'] ?? [] ) );
+	foreach ( $odebrat as $attachment_id ) {
+		if ( in_array( $attachment_id, $fotky, true ) ) {
+			wp_delete_attachment( $attachment_id, true );
+			$fotky = array_values( array_diff( $fotky, [ $attachment_id ] ) );
+		}
+	}
+
+	$max_fotek  = skaut_burza_max_fotek();
+	$foto_chyby = 0;
+	if ( ! empty( $_FILES['burza_fotky'] ) && is_array( $_FILES['burza_fotky']['name'] ) ) {
+		$pocet = count( $_FILES['burza_fotky']['name'] );
+		for ( $i = 0; $i < $pocet; $i++ ) {
+			if ( count( $fotky ) >= $max_fotek ) break;
+			if ( ( $_FILES['burza_fotky']['error'][ $i ] ?? UPLOAD_ERR_NO_FILE ) === UPLOAD_ERR_NO_FILE ) continue;
+
+			$jeden = [
+				'name'     => $_FILES['burza_fotky']['name'][ $i ],
+				'type'     => $_FILES['burza_fotky']['type'][ $i ],
+				'tmp_name' => $_FILES['burza_fotky']['tmp_name'][ $i ],
+				'error'    => $_FILES['burza_fotky']['error'][ $i ],
+				'size'     => $_FILES['burza_fotky']['size'][ $i ],
+			];
+
+			$nahrano = skaut_burza_zpracuj_upload( $jeden, $post_id );
+			if ( is_wp_error( $nahrano ) ) {
+				$foto_chyby++;
+				continue;
+			}
+			$fotky[] = $nahrano;
+		}
+	}
+
+	update_post_meta( $post_id, '_burza_fotky', array_slice( $fotky, 0, $max_fotek ) );
+
+	return $foto_chyby;
+}
+
+/**
  * Smaže všechny fotky uložené v _burza_fotky (i s vygenerovanými velikostmi).
  */
 function skaut_burza_smaz_fotky( int $post_id ): void {

@@ -1,7 +1,8 @@
 # Skautská burza
 
 WordPress plugin pro burzu použitého skautského oblečení a vybavení, ze
-kterého děti vyrostly. Rodiče vkládají inzeráty sami a domlouvají se mezi
+kterého děti vyrostly, a pro **nálezy** — věci zapomenuté na skautských
+akcích (viz sekce Nálezy). Rodiče vkládají inzeráty sami a domlouvají se mezi
 sebou přímo (telefon, e-mail) — středisko je jen provozovatelem nástěnky,
 žádnou komunikaci nezprostředkovává.
 
@@ -64,6 +65,33 @@ se zobrazují beze změny.
 - max. 3 fotky (nastavitelné), JPG/PNG/WEBP, max. 3 MB na soubor (prohlížeč
   fotky před odesláním sám zmenší na delší stranu 1600 px, takže limit
   běžně nepotká).
+
+---
+
+## Nálezy
+
+Věci nalezené na akcích. Vkládají je jen **vedoucí** — uživatelé, kteří
+mohou publikovat příspěvky (role autor a vyšší, i když mají vedle toho
+další role). Ostatní přihlášení uvidí místo formuláře upozornění.
+
+Stránka nálezů (na skautchlumec.cz `/nalezy/`, adresa v **Burza →
+Nastavení**) má dva shortcody do panelů Elementoru:
+
+| Shortcode | Použití |
+|---|---|
+| `[burza_nalezy]` | Přehled nálezů — dlaždice (název, fotka, akce, datum nálezu, Detail), filtr podle kategorie, hledání v názvu, popisu i akci. Autor (a admin) má u svých nálezů odkazy upravit / vráceno majiteli / smazat; pod přehledem vidí své vrácené nálezy (znovu zveřejnit, smazat). |
+| `[burza_nalez_formular]` | Vložení / úprava nálezu (`?burza_nalez_uprava=ID`): co, kategorie, akce / místo, datum nálezu, popis, velikost, dodatečné informace, telefon, e-mail, fotky. Bez stavu a ceny. |
+
+- CPT `burza_nalez` (detail `/nalez/<slug>/`, šablona `templates/single-burza_nalez.php`),
+  sdílí kategorie `burza_kategorie` s inzeráty; meta `_burza_akce`,
+  `_burza_datum_nalezu` (RRRR-MM-DD) a stejná pole jako inzerát kromě stavu, ceny a výzev.
+- Fotky, údaje, popis i dodatečné informace vidí všichni (ať majitel věc
+  pozná); jméno vedoucího (**přezdívka** z WP profilu), telefon a e-mail
+  jen přihlášení — přes stejný AJAX endpoint jako u inzerátů.
+- Nález je zveřejněný, dokud ho vedoucí neoznačí „vráceno majiteli“
+  (status `burza_vraceno`) nebo nesmaže. Vrácené nálezy starší 6 měsíců
+  maže měsíční úklid i s fotkami. Žádné e-mailové výzvy.
+- Panely: `?burza_panel=nalezy|nalez_formular`.
 
 ---
 
@@ -153,7 +181,8 @@ regeneruje. Archivované inzeráty starší 6 měsíců se jednou měsíčně
 nenávratně smažou i s fotkami.
 
 Všechny výchozí lhůty (dny do první výzvy, interval dalších výzev, počet
-výzev před archivací), max. počet fotek, adresa stránky burzy, adresa přihlašovací stránky
+výzev před archivací), max. počet fotek, adresa stránky burzy, adresa
+stránky nálezů (výchozí `/nalezy/`), adresa přihlašovací stránky
 (výchozí `/prihlasit/`, odkazy „přihlásit“ v burze) a kontaktní
 e-mail střediska se dají upravit v **Burza → Nastavení**.
 
