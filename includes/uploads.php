@@ -88,6 +88,10 @@ function skaut_burza_zpracuj_upload( array $file, int $post_id ) {
 		return new WP_Error( 'skaut_burza_typ_souboru', __( 'Povolené typy fotek jsou JPG, PNG a WEBP.', 'skaut-burza' ) );
 	}
 
+	// Náhodný kód v názvu: nová fotka nikdy nedostane adresu po dříve smazané
+	// (jinak by prohlížeč / Cloudflare dál ukazovaly starou fotku z cache).
+	$file['name'] = sanitize_file_name( pathinfo( $file['name'], PATHINFO_FILENAME ) ) . '-' . strtolower( wp_generate_password( 6, false ) ) . '.' . $filetype['ext'];
+
 	add_filter( 'upload_dir', 'skaut_burza_upload_dir_filter' );
 	$sideload = wp_handle_upload( $file, [ 'test_form' => false ] );
 	remove_filter( 'upload_dir', 'skaut_burza_upload_dir_filter' );
