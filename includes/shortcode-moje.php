@@ -199,7 +199,64 @@ function skaut_burza_shortcode_moje( $atts ): string {
 				<?php endwhile; ?>
 			</ul>
 		<?php endif; ?>
+
+		<?php echo current_user_can( 'manage_options' ) ? skaut_burza_moje_ostatni_html( $user_id ) : ''; ?>
 	</div>
+	<?php
+	wp_reset_postdata();
+	return ob_get_clean();
+}
+
+/**
+ * Pro administrátory: inzeráty všech ostatních uživatelů (aktivní,
+ * rezervované i archivované) s odkazy upravit / smazat. Oprávnění samotných
+ * akcí ověřuje skaut_burza_je_autor_nebo_admin().
+ */
+function skaut_burza_moje_ostatni_html( int $user_id ): string {
+	$ostatni = new WP_Query( [
+		'post_type'      => 'burza_inzerat',
+		'author__not_in' => [ $user_id ],
+		'post_status'    => [ 'publish', 'burza_rezervovano', 'burza_archiv' ],
+		'posts_per_page' => 200,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	] );
+	if ( ! $ostatni->have_posts() ) return '';
+
+	$stavy = [
+		'burza_rezervovano' => __( 'Rezervováno', 'skaut-burza' ),
+		'burza_archiv'      => __( 'Archiv', 'skaut-burza' ),
+	];
+
+	ob_start();
+	?>
+	<h2><?php esc_html_e( 'Inzeráty ostatních uživatelů', 'skaut-burza' ); ?></h2>
+	<p class="skaut-burza-napoveda-kratka"><?php esc_html_e( 'Vidíte jen vy jako administrátor. Můžete je upravit nebo smazat (např. nevhodný inzerát).', 'skaut-burza' ); ?></p>
+	<ul class="skaut-burza-moje-seznam skaut-burza-moje-ostatni">
+		<?php while ( $ostatni->have_posts() ) : $ostatni->the_post(); ?>
+			<?php
+			$id    = get_the_ID();
+			$autor = get_userdata( (int) get_post_field( 'post_author', $id ) );
+			$jmeno = $autor ? ( trim( $autor->first_name . ' ' . $autor->last_name ) ?: $autor->display_name ) : '';
+			$stav  = get_post_status();
+			?>
+			<li class="skaut-burza-moje-polozka<?php echo 'burza_archiv' === $stav ? ' skaut-burza-moje-archiv' : ''; ?>">
+				<a href="<?php the_permalink(); ?>"><strong><?php the_title(); ?></strong></a>
+				<?php if ( isset( $stavy[ $stav ] ) ) : ?>
+					<span class="skaut-burza-stitek-rezervovano"><?php echo esc_html( $stavy[ $stav ] ); ?></span>
+				<?php endif; ?>
+				<span class="skaut-burza-moje-cena"><?php echo esc_html( skaut_burza_cena_text( get_post_meta( $id, '_burza_cena', true ) ) ); ?></span>
+				<?php if ( $jmeno ) : ?>
+					<span class="skaut-burza-moje-platnost"><?php echo esc_html( $jmeno ); ?></span>
+				<?php endif; ?>
+				<span class="skaut-burza-moje-akce">
+					<a href="<?php echo esc_url( add_query_arg( 'burza_uprava', $id, skaut_burza_url_stranky( 'formular' ) ) ); ?>"><?php esc_html_e( 'upravit', 'skaut-burza' ); ?></a>
+					|
+					<a href="<?php echo esc_url( skaut_burza_moje_akce_url( 'smazat', $id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Opravdu inzerát jiného uživatele nenávratně smazat i s fotkami?', 'skaut-burza' ) ); ?>');"><?php esc_html_e( 'smazat', 'skaut-burza' ); ?></a>
+				</span>
+			</li>
+		<?php endwhile; ?>
+	</ul>
 	<?php
 	wp_reset_postdata();
 	return ob_get_clean();
