@@ -4,6 +4,12 @@
 	var MAX_STRANA = 1600;
 	var JPEG_KVALITA = 0.8;
 
+	// Současné prohlížeče (Chrome 81+, Safari 13.1+, Firefox 77+) otáčejí
+	// fotku podle EXIF už při načtení do <img> i při kreslení na canvas.
+	// Ruční otočení by ji pak otočilo podruhé — fotky z mobilu na výšku
+	// vycházely naležato. Ručně se otáčí jen ve starších prohlížečích.
+	var PROHLIZEC_OTACI_SAM = !! ( window.CSS && CSS.supports && CSS.supports( 'image-orientation', 'from-image' ) );
+
 	/**
 	 * Přečte EXIF orientaci (1–8) z JPEG souboru, nebo 1 (bez rotace),
 	 * pokud EXIF chybí nebo nejde o JPEG.
@@ -63,10 +69,11 @@
 
 	/**
 	 * Zmenší delší stranu na MAX_STRANA, narovná podle EXIF orientace
-	 * a vrátí nový JPEG soubor v kvalitě 0.8.
+	 * (pokud to neudělal prohlížeč sám) a vrátí nový JPEG soubor v kvalitě 0.8.
 	 */
 	function zmensiSoubor( soubor ) {
-		return Promise.all( [ nacistObrazek( soubor ), zjistiOrientaci( soubor ) ] ).then( function ( vysledky ) {
+		var orientace = PROHLIZEC_OTACI_SAM ? Promise.resolve( 1 ) : zjistiOrientaci( soubor );
+		return Promise.all( [ nacistObrazek( soubor ), orientace ] ).then( function ( vysledky ) {
 			var img = vysledky[ 0 ];
 			var orientace = vysledky[ 1 ];
 
