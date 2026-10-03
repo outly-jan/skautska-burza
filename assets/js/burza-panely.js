@@ -2,13 +2,17 @@
 	'use strict';
 
 	/**
-	 * Burza běží na jedné stránce se třemi shortcody v panelech (Elementor
-	 * Panely / Tabs apod.). Podle URL otevře panel s požadovaným shortcodem:
+	 * Burza běží na jedné stránce se shortcody v panelech (Elementor Panely /
+	 * Tabs apod.). Podle URL otevře panel s požadovaným shortcodem:
 	 * ?burza_panel=vypis|formular|moje|nalezy|nalez_formular, ?burza_uprava=ID
 	 * → formulář, ?burza_nalez_uprava=ID → formulář nálezu, jinak
 	 * panel, který server označil data-skaut-burza-aktivni (např. formulář
 	 * s chybami po odeslání). Bez panelů jen posune stránku k shortcodu.
 	 */
+	var INTERVAL_MS = 250;
+	var MAX_POKUSU = 40; // ~10 s
+	var STABILNI_KONTROLY = 4; // panel musí zůstat otevřený ~1 s
+
 	function najdiCil() {
 		var parametry = new URLSearchParams( window.location.search );
 		var panel = parametry.get( 'burza_panel' );
@@ -21,37 +25,87 @@
 		return document.querySelector( '.skaut-burza[data-skaut-burza-aktivni]' );
 	}
 
-	function otevriPanel( cil ) {
-		var tabpanel = cil.closest( '[role="tabpanel"]' );
-		if ( tabpanel && tabpanel.id ) {
-			var titulky = document.querySelectorAll( '[aria-controls="' + tabpanel.id + '"]' );
-			for ( var i = 0; i < titulky.length; i++ ) {
-				// Elementor má titulek panelu zvlášť pro desktop a mobil — kliknout na viditelný.
-				if ( titulky[ i ].offsetParent !== null ) {
-					if ( titulky[ i ].getAttribute( 'aria-selected' ) !== 'true' ) titulky[ i ].click();
-					break;
-				}
-			}
-		}
+	function jeViditelny( el ) {
+		return el.getClientRects().length > 0;
+	}
 
-		var detaily = cil.closest( 'details' );
-		if ( detaily ) detaily.open = true;
+	/**
+	 * Titulek panelu, který obsahuje shortcode. Elementor může mít titulek
+	 * zvlášť pro desktop a mobil — přednost má viditelný.
+	 */
+	function najdiTitulek( tabpanel ) {
+		var titulky = document.querySelectorAll( '[aria-controls="' + tabpanel.id + '"]' );
+		for ( var i = 0; i < titulky.length; i++ ) {
+			if ( jeViditelny( titulky[ i ] ) ) return titulky[ i ];
+		}
+		return titulky[ 0 ] || null;
+	}
+
+	function posun( cil ) {
+		cil.scrollIntoView( { behavior: 'smooth', block: 'start' } );
 	}
 
 	function spust() {
 		var cil = najdiCil();
 		if ( ! cil ) return;
 
-		otevriPanel( cil );
-		window.setTimeout( function () {
-			cil.scrollIntoView( { behavior: 'smooth', block: 'start' } );
-		}, 150 );
+		var detaily = cil.closest( 'details' );
+		if ( detaily ) detaily.open = true;
+
+		var tabpanel = cil.closest( '[role="tabpanel"]' );
+		if ( ! tabpanel || ! tabpanel.id ) {
+			posun( cil );
+			return;
+		}
+
+		// Elementor si obsluhu panelů načítá líně a při inicializaci aktivuje
+		// první panel — jednorázové kliknutí by přišlo moc brzy nebo by ho
+		// přebil. Proto opakovat, dokud panel s cílem nezůstane otevřený.
+		// Jakmile uživatel sám klikne nebo píše, přestat (nebojovat s ním).
+		var pokusy = 0;
+		var stabilni = 0;
+		var zastaveno = false;
+
+		function zastav() {
+			zastaveno = true;
+			document.removeEventListener( 'pointerdown', uzivatel, true );
+			document.removeEventListener( 'keydown', uzivatel, true );
+		}
+
+		function uzivatel( e ) {
+			if ( e.isTrusted ) zastav();
+		}
+
+		document.addEventListener( 'pointerdown', uzivatel, true );
+		document.addEventListener( 'keydown', uzivatel, true );
+
+		( function kontrola() {
+			if ( zastaveno ) return;
+
+			if ( jeViditelny( cil ) ) {
+				stabilni++;
+				if ( stabilni === 1 ) posun( cil );
+				if ( stabilni >= STABILNI_KONTROLY ) {
+					zastav();
+					return;
+				}
+			} else {
+				stabilni = 0;
+				var titulek = najdiTitulek( tabpanel );
+				if ( titulek ) titulek.click();
+			}
+
+			if ( ++pokusy >= MAX_POKUSU ) {
+				zastav();
+				return;
+			}
+			window.setTimeout( kontrola, INTERVAL_MS );
+		} )();
 	}
 
-	// Elementor inicializuje panely až po načtení svých skriptů.
-	if ( document.readyState === 'complete' ) {
-		spust();
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', spust );
 	} else {
-		window.addEventListener( 'load', spust );
+		spust();
 	}
 } )();
