@@ -93,6 +93,8 @@ Shortcody:
 - Nález je zveřejněný, dokud ho vedoucí neoznačí „vráceno majiteli“
   (status `burza_vraceno`) nebo nesmaže. Vrácené nálezy starší 6 měsíců
   maže měsíční úklid i s fotkami. Žádné e-mailové výzvy.
+- Po uložení nového nálezu se vedoucí vrátí na prázdný formulář s potvrzením
+  (`?burza_nalez_ulozeno=ID`), ať jde po akci zadávat nálezy jeden za druhým.
 - Panely: `?burza_panel=nalezy|nalez_formular`.
 
 ---
