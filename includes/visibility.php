@@ -12,7 +12,12 @@ function skaut_burza_smi_videt_kontakt( int $post_id ): bool {
 	if ( ! is_user_logged_in() ) return false;
 
 	$post = get_post( $post_id );
-	if ( ! $post || 'burza_inzerat' !== $post->post_type ) return false;
+	if ( ! $post ) return false;
+
+	if ( 'burza_nalez' === $post->post_type ) {
+		return 'publish' === $post->post_status || skaut_burza_je_autor_nebo_admin( $post_id );
+	}
+	if ( 'burza_inzerat' !== $post->post_type ) return false;
 
 	if ( in_array( $post->post_status, [ 'publish', 'burza_rezervovano' ], true ) ) {
 		return true;
@@ -35,15 +40,17 @@ function skaut_burza_ajax_kontakt(): void {
 
 	$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
 
+	$je_nalez = $post_id && 'burza_nalez' === get_post_type( $post_id );
+
 	if ( ! is_user_logged_in() ) {
-		wp_send_json_success( [ 'html' => skaut_burza_prihlaseni_vyzva_html( $post_id ) ] );
+		wp_send_json_success( [ 'html' => $je_nalez ? skaut_burza_nalez_prihlaseni_vyzva_html( $post_id ) : skaut_burza_prihlaseni_vyzva_html( $post_id ) ] );
 	}
 
 	if ( ! $post_id || ! skaut_burza_smi_videt_kontakt( $post_id ) ) {
 		wp_send_json_error( [ 'html' => esc_html__( 'Inzerát nenalezen.', 'skaut-burza' ) ], 404 );
 	}
 
-	wp_send_json_success( [ 'html' => skaut_burza_gated_html( get_post( $post_id ) ) ] );
+	wp_send_json_success( [ 'html' => $je_nalez ? skaut_burza_nalez_gated_html( get_post( $post_id ) ) : skaut_burza_gated_html( get_post( $post_id ) ) ] );
 }
 
 /**

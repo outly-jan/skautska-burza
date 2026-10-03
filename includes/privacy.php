@@ -19,9 +19,9 @@ function skaut_burza_register_privacy_eraser( array $mazace ): array {
 
 function skaut_burza_privacy_uzivatelovy_inzeraty( int $user_id, int $stranka, int $na_stranku ): WP_Query {
 	return new WP_Query( [
-		'post_type'      => 'burza_inzerat',
+		'post_type'      => [ 'burza_inzerat', 'burza_nalez' ],
 		'author'         => $user_id,
-		'post_status'    => [ 'publish', 'burza_rezervovano', 'burza_archiv' ],
+		'post_status'    => [ 'publish', 'burza_rezervovano', 'burza_archiv', 'burza_vraceno' ],
 		'posts_per_page' => $na_stranku,
 		'paged'          => $stranka,
 		'orderby'        => 'ID',
@@ -44,7 +44,7 @@ function skaut_burza_privacy_exporter( string $email_address, int $stranka = 1 )
 	foreach ( $dotaz->posts as $post ) {
 		$export_polozky[] = [
 			'group_id'    => 'skaut-burza-inzeraty',
-			'group_label' => __( 'Inzeráty na burze', 'skaut-burza' ),
+			'group_label' => __( 'Inzeráty a nálezy na burze', 'skaut-burza' ),
 			'item_id'     => 'skaut-burza-inzerat-' . $post->ID,
 			'data'        => [
 				[ 'name' => __( 'Název', 'skaut-burza' ), 'value' => $post->post_title ],
@@ -96,7 +96,7 @@ function skaut_burza_privacy_eraser( string $email_address, int $stranka = 1 ): 
 	return [
 		'items_removed'  => $odstraneno,
 		'items_retained' => false,
-		'messages'       => $odstraneno ? [ __( 'Kontaktní údaje (telefon, e-mail) byly smazány ze všech inzerátů na burze. Samotné inzeráty (název, popis) zůstaly zachované.', 'skaut-burza' ) ] : [],
+		'messages'       => $odstraneno ? [ __( 'Kontaktní údaje (telefon, e-mail) byly smazány ze všech inzerátů a nálezů na burze. Samotné inzeráty a nálezy (název, popis) zůstaly zachované.', 'skaut-burza' ) ] : [],
 		'done'           => count( $dotaz->posts ) < $na_stranku,
 	];
 }

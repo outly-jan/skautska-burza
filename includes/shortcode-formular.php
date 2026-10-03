@@ -158,43 +158,7 @@ function skaut_burza_handle_formular_submit(): void {
 		update_user_meta( $user_id, '_skaut_burza_posledni_vlozeni', time() );
 	}
 
-	$fotky = get_post_meta( $vysledek_id, '_burza_fotky', true );
-	if ( ! is_array( $fotky ) ) $fotky = [];
-
-	$odebrat = array_map( 'absint', (array) ( $_POST['burza_odebrat_foto'] ?? [] ) );
-	foreach ( $odebrat as $attachment_id ) {
-		if ( in_array( $attachment_id, $fotky, true ) ) {
-			wp_delete_attachment( $attachment_id, true );
-			$fotky = array_values( array_diff( $fotky, [ $attachment_id ] ) );
-		}
-	}
-
-	$max_fotek  = skaut_burza_max_fotek();
-	$foto_chyby = 0;
-	if ( ! empty( $_FILES['burza_fotky'] ) && is_array( $_FILES['burza_fotky']['name'] ) ) {
-		$pocet = count( $_FILES['burza_fotky']['name'] );
-		for ( $i = 0; $i < $pocet; $i++ ) {
-			if ( count( $fotky ) >= $max_fotek ) break;
-			if ( ( $_FILES['burza_fotky']['error'][ $i ] ?? UPLOAD_ERR_NO_FILE ) === UPLOAD_ERR_NO_FILE ) continue;
-
-			$jeden = [
-				'name'     => $_FILES['burza_fotky']['name'][ $i ],
-				'type'     => $_FILES['burza_fotky']['type'][ $i ],
-				'tmp_name' => $_FILES['burza_fotky']['tmp_name'][ $i ],
-				'error'    => $_FILES['burza_fotky']['error'][ $i ],
-				'size'     => $_FILES['burza_fotky']['size'][ $i ],
-			];
-
-			$nahrano = skaut_burza_zpracuj_upload( $jeden, $vysledek_id );
-			if ( is_wp_error( $nahrano ) ) {
-				$foto_chyby++;
-				continue;
-			}
-			$fotky[] = $nahrano;
-		}
-	}
-
-	update_post_meta( $vysledek_id, '_burza_fotky', array_slice( $fotky, 0, $max_fotek ) );
+	$foto_chyby = skaut_burza_ulozit_fotky_z_formulare( $vysledek_id );
 
 	$cil = add_query_arg( 'burza_ulozeno', '1', get_permalink( $vysledek_id ) );
 	if ( $foto_chyby > 0 ) {

@@ -33,7 +33,7 @@ function skaut_burza_register_post_type(): void {
 }
 
 function skaut_burza_register_taxonomy(): void {
-	register_taxonomy( 'burza_kategorie', 'burza_inzerat', [
+	register_taxonomy( 'burza_kategorie', [ 'burza_inzerat', 'burza_nalez' ], [
 		'label'              => __( 'Kategorie burzy', 'skaut-burza' ),
 		'labels'             => [
 			'name'          => __( 'Kategorie burzy', 'skaut-burza' ),

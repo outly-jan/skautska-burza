@@ -4,7 +4,8 @@
 	/**
 	 * Burza běží na jedné stránce se třemi shortcody v panelech (Elementor
 	 * Panely / Tabs apod.). Podle URL otevře panel s požadovaným shortcodem:
-	 * ?burza_panel=vypis|formular|moje, ?burza_uprava=ID → formulář, jinak
+	 * ?burza_panel=vypis|formular|moje|nalezy|nalez_formular, ?burza_uprava=ID
+	 * → formulář, ?burza_nalez_uprava=ID → formulář nálezu, jinak
 	 * panel, který server označil data-skaut-burza-aktivni (např. formulář
 	 * s chybami po odeslání). Bez panelů jen posune stránku k shortcodu.
 	 */
@@ -12,9 +13,10 @@
 		var parametry = new URLSearchParams( window.location.search );
 		var panel = parametry.get( 'burza_panel' );
 		if ( ! panel && parametry.has( 'burza_uprava' ) ) panel = 'formular';
+		if ( ! panel && parametry.has( 'burza_nalez_uprava' ) ) panel = 'nalez_formular';
 
 		if ( panel ) {
-			return document.querySelector( '.skaut-burza[data-skaut-burza-panel="' + panel.replace( /[^a-z]/g, '' ) + '"]' );
+			return document.querySelector( '.skaut-burza[data-skaut-burza-panel="' + panel.replace( /[^a-z_]/g, '' ) + '"]' );
 		}
 		return document.querySelector( '.skaut-burza[data-skaut-burza-aktivni]' );
 	}

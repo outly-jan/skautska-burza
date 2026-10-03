@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: Skautská burza
- * Description: Burza použitého skautského oblečení a vybavení. Středisko Chlumec nad Cidlinou.
- * Version: 1.0.10
+ * Description: Burza použitého skautského oblečení a vybavení a nálezy z akcí. Středisko Chlumec nad Cidlinou.
+ * Version: 1.1.0
  * Text Domain: skaut-burza
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'SKAUT_BURZA_VERSION', '1.0.10' );
+define( 'SKAUT_BURZA_VERSION', '1.1.0' );
 define( 'SKAUT_BURZA_FILE', __FILE__ );
 define( 'SKAUT_BURZA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SKAUT_BURZA_URL', plugin_dir_url( __FILE__ ) );
@@ -26,6 +26,7 @@ require_once SKAUT_BURZA_DIR . 'includes/email.php';
 require_once SKAUT_BURZA_DIR . 'includes/cron.php';
 require_once SKAUT_BURZA_DIR . 'includes/admin.php';
 require_once SKAUT_BURZA_DIR . 'includes/privacy.php';
+require_once SKAUT_BURZA_DIR . 'includes/nalezy.php';
 
 final class SkautBurza {
 
@@ -39,6 +40,16 @@ final class SkautBurza {
 		add_action( 'init', 'skaut_burza_register_post_statuses' );
 		add_action( 'init', 'skaut_burza_seed_kategorie', 20 );
 		add_action( 'init', 'skaut_burza_register_meta', 20 );
+		add_action( 'init', 'skaut_burza_register_nalez_post_type' );
+		add_action( 'init', 'skaut_burza_register_nalez_status' );
+		add_action( 'init', 'skaut_burza_register_nalez_meta', 20 );
+		add_action( 'init', 'skaut_burza_flush_rewrite_po_aktualizaci', 99 );
+
+		add_shortcode( 'burza_nalezy', 'skaut_burza_shortcode_nalezy' );
+		add_shortcode( 'burza_nalez_formular', 'skaut_burza_shortcode_nalez_formular' );
+		add_action( 'template_redirect', 'skaut_burza_handle_nalez_submit' );
+		add_action( 'template_redirect', 'skaut_burza_handle_nalez_akce' );
+		add_action( 'skaut_burza_uklid', 'skaut_burza_uklid_vracenych_nalezu' );
 
 		add_shortcode( 'burza_formular', 'skaut_burza_shortcode_formular' );
 		add_action( 'template_redirect', 'skaut_burza_handle_formular_submit' );
@@ -88,6 +99,8 @@ final class SkautBurza {
 		skaut_burza_register_post_type();
 		skaut_burza_register_taxonomy();
 		skaut_burza_register_post_statuses();
+		skaut_burza_register_nalez_post_type();
+		skaut_burza_register_nalez_status();
 		skaut_burza_seed_kategorie();
 		skaut_burza_naplanovat_cron();
 		flush_rewrite_rules();

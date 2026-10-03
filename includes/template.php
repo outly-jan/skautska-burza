@@ -205,16 +205,17 @@ function skaut_burza_enqueue_panely(): void {
 }
 
 function skaut_burza_template_include( string $template ): string {
-	if ( ! is_singular( 'burza_inzerat' ) ) return $template;
+	foreach ( [ 'burza_inzerat', 'burza_nalez' ] as $typ ) {
+		if ( ! is_singular( $typ ) ) continue;
 
-	$tema_sablona = locate_template( [ 'single-burza_inzerat.php' ] );
-	if ( $tema_sablona ) return $tema_sablona;
-
-	return SKAUT_BURZA_DIR . 'templates/single-burza_inzerat.php';
+		$tema_sablona = locate_template( [ 'single-' . $typ . '.php' ] );
+		return $tema_sablona ?: SKAUT_BURZA_DIR . 'templates/single-' . $typ . '.php';
+	}
+	return $template;
 }
 
 function skaut_burza_enqueue_detail_assets(): void {
-	if ( ! is_singular( 'burza_inzerat' ) ) return;
+	if ( ! is_singular( [ 'burza_inzerat', 'burza_nalez' ] ) ) return;
 
 	wp_enqueue_style( 'skaut-burza', SKAUT_BURZA_URL . 'assets/css/burza.css', [], SKAUT_BURZA_VERSION );
 	wp_enqueue_script( 'skaut-burza-kontakt', SKAUT_BURZA_URL . 'assets/js/burza-kontakt.js', [], SKAUT_BURZA_VERSION, true );
