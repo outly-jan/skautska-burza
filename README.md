@@ -81,7 +81,7 @@ Shortcody:
 
 | Shortcode | Použití |
 |---|---|
-| `[burza_nalezy]` | Přehled nálezů — dlaždice (název, fotka, akce, datum nálezu, Detail), filtr podle kategorie, hledání v názvu, popisu i akci. Autor (a admin) má u svých nálezů odkazy upravit / vráceno majiteli / smazat; pod přehledem vidí své vrácené nálezy (znovu zveřejnit, smazat). |
+| `[burza_nalezy]` | Přehled nálezů — dlaždice (název, fotka, akce, datum nálezu, Detail), filtr podle kategorie, hledání v názvu, popisu i akci. Upravit a smazat nález smí jen jeho autor (a admin); označit jako vrácený majiteli nebo znovu zveřejnit smí kterýkoli vedoucí. Pod přehledem vidí vedoucí vrácené nálezy. |
 | `[burza_nalez_formular]` | Vložení / úprava nálezu (`?burza_nalez_uprava=ID`): co, kategorie, akce / místo, datum nálezu, popis, velikost, dodatečné informace, telefon, e-mail, fotky. Bez stavu a ceny. |
 
 - CPT `burza_nalez` (detail `/nalez/<slug>/`, šablona `templates/single-burza_nalez.php`),

@@ -250,7 +250,7 @@ function skaut_burza_handle_nalez_akce(): void {
 	if ( ! $post || 'burza_nalez' !== $post->post_type ) {
 		wp_die( esc_html__( 'Nález nenalezen.', 'skaut-burza' ), '', [ 'response' => 404 ] );
 	}
-	if ( ! skaut_burza_je_autor_nebo_admin( $post_id ) ) {
+	if ( ! skaut_burza_smi_nalez_akci( $akce, $post_id ) ) {
 		wp_die( esc_html__( 'Nemáte oprávnění tuto akci provést.', 'skaut-burza' ), '', [ 'response' => 403 ] );
 	}
 
@@ -277,20 +277,36 @@ function skaut_burza_handle_nalez_akce(): void {
 }
 
 /**
- * Odkazy pro správu nálezu (autor nebo admin), oddělené svislítkem.
+ * Kdo smí jakou akci u nálezu: upravit a smazat jen autor (a admin),
+ * označit jako vrácený / znovu zveřejnit kterýkoli vedoucí — věc majiteli
+ * může předat kdokoli z nich.
+ */
+function skaut_burza_smi_nalez_akci( string $akce, int $post_id ): bool {
+	if ( in_array( $akce, [ 'vraceno', 'znovu' ], true ) ) {
+		return skaut_burza_je_vedouci() || skaut_burza_je_autor_nebo_admin( $post_id );
+	}
+	return skaut_burza_je_autor_nebo_admin( $post_id );
+}
+
+/**
+ * Odkazy pro správu nálezu podle oprávnění, oddělené svislítkem.
  */
 function skaut_burza_nalez_akce_html( WP_Post $post ): string {
-	if ( ! skaut_burza_je_autor_nebo_admin( $post->ID ) ) return '';
-
-	$odkazy = [
-		'<a href="' . esc_url( add_query_arg( 'burza_nalez_uprava', $post->ID, skaut_burza_url_nalezu( 'nalez_formular' ) ) ) . '">' . esc_html__( 'upravit', 'skaut-burza' ) . '</a>',
-	];
-	if ( 'burza_vraceno' === $post->post_status ) {
-		$odkazy[] = '<a href="' . esc_url( skaut_burza_nalez_akce_url( 'znovu', $post->ID ) ) . '">' . esc_html__( 'znovu zveřejnit', 'skaut-burza' ) . '</a>';
-	} else {
-		$odkazy[] = '<a href="' . esc_url( skaut_burza_nalez_akce_url( 'vraceno', $post->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Označit jako vrácené majiteli? Nález zmizí z přehledu.', 'skaut-burza' ) ) . '\');">' . esc_html__( 'vráceno majiteli', 'skaut-burza' ) . '</a>';
+	$odkazy = [];
+	if ( skaut_burza_smi_nalez_akci( 'upravit', $post->ID ) ) {
+		$odkazy[] = '<a href="' . esc_url( add_query_arg( 'burza_nalez_uprava', $post->ID, skaut_burza_url_nalezu( 'nalez_formular' ) ) ) . '">' . esc_html__( 'upravit', 'skaut-burza' ) . '</a>';
 	}
-	$odkazy[] = '<a href="' . esc_url( skaut_burza_nalez_akce_url( 'smazat', $post->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Opravdu nález nenávratně smazat i s fotkami?', 'skaut-burza' ) ) . '\');">' . esc_html__( 'smazat', 'skaut-burza' ) . '</a>';
+	if ( skaut_burza_smi_nalez_akci( 'vraceno', $post->ID ) ) {
+		if ( 'burza_vraceno' === $post->post_status ) {
+			$odkazy[] = '<a href="' . esc_url( skaut_burza_nalez_akce_url( 'znovu', $post->ID ) ) . '">' . esc_html__( 'znovu zveřejnit', 'skaut-burza' ) . '</a>';
+		} else {
+			$odkazy[] = '<a href="' . esc_url( skaut_burza_nalez_akce_url( 'vraceno', $post->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Označit jako vrácené majiteli? Nález zmizí z přehledu.', 'skaut-burza' ) ) . '\');">' . esc_html__( 'vráceno majiteli', 'skaut-burza' ) . '</a>';
+		}
+	}
+	if ( skaut_burza_smi_nalez_akci( 'smazat', $post->ID ) ) {
+		$odkazy[] = '<a href="' . esc_url( skaut_burza_nalez_akce_url( 'smazat', $post->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Opravdu nález nenávratně smazat i s fotkami?', 'skaut-burza' ) ) . '\');">' . esc_html__( 'smazat', 'skaut-burza' ) . '</a>';
+	}
+	if ( ! $odkazy ) return '';
 
 	return '<p class="skaut-burza-nalez-akce">' . implode( ' | ', $odkazy ) . '</p>';
 }
@@ -347,13 +363,13 @@ function skaut_burza_shortcode_nalezy( $atts ): string {
 	$dotaz = new WP_Query( $args );
 	remove_filter( 'posts_search', 'skaut_burza_nalezy_posts_search', 10 );
 
-	// Vedoucí vidí pod přehledem i své nálezy označené jako vrácené.
+	// Vedoucí vidí pod přehledem i nálezy označené jako vrácené (vrátit
+	// je zpět do přehledu může kterýkoli vedoucí).
 	$vracene = null;
 	if ( skaut_burza_je_vedouci() ) {
 		$vracene = new WP_Query( [
 			'post_type'      => 'burza_nalez',
 			'post_status'    => 'burza_vraceno',
-			'author'         => current_user_can( 'manage_options' ) ? '' : get_current_user_id(),
 			'posts_per_page' => 50,
 			'orderby'        => 'modified',
 			'order'          => 'DESC',
@@ -440,7 +456,7 @@ function skaut_burza_shortcode_nalezy( $atts ): string {
 
 		<?php if ( $vracene && $vracene->have_posts() ) : ?>
 			<h2><?php esc_html_e( 'Vrácené nálezy', 'skaut-burza' ); ?></h2>
-			<p class="skaut-burza-napoveda-kratka"><?php esc_html_e( 'Vidíte jen vy. Po 6 měsících se vrácené nálezy samy smažou.', 'skaut-burza' ); ?></p>
+			<p class="skaut-burza-napoveda-kratka"><?php esc_html_e( 'Vidí jen vedoucí. Po 6 měsících se vrácené nálezy samy smažou.', 'skaut-burza' ); ?></p>
 			<ul class="skaut-burza-moje-seznam skaut-burza-moje-archiv">
 				<?php while ( $vracene->have_posts() ) : $vracene->the_post(); ?>
 					<li class="skaut-burza-moje-polozka">

@@ -7,7 +7,10 @@
 		document.querySelectorAll( 'a[data-skaut-burza-zpet]' ).forEach( function ( odkaz ) {
 			odkaz.addEventListener( 'click', function ( e ) {
 				var vypis = odkaz.href.split( '?' )[0];
-				if ( document.referrer && document.referrer.split( '?' )[0] === vypis && window.history.length > 1 ) {
+				// Po uložení úpravy (?burza_ulozeno) nebo z formuláře úpravy by krok
+				// zpět vrátil do formuláře — tehdy jít rovnou na přehled.
+				var zFormulare = /[?&]burza_(nalez_)?uprava=/.test( document.referrer ) || /[?&]burza_ulozeno=/.test( window.location.search );
+				if ( ! zFormulare && document.referrer && document.referrer.split( '?' )[0] === vypis && window.history.length > 1 ) {
 					e.preventDefault();
 					window.history.back();
 				}
