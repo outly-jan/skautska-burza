@@ -221,6 +221,13 @@ z větve několik minut v cache.
 - Server za Cloudflare občas při prvním pokusu vrátí 522 — `curl` volání
   až třikrát zopakuje.
 - Deploy jde spustit i ručně: **Actions → Deploy na server → Run workflow**.
+- Zabezpečení: token se porovnává přes `hash_equals()`; dokud je v souboru
+  na serveru výchozí `CHANGE_ME` (nebo prázdná hodnota), webhook odmítne
+  každý požadavek. Nasadit jde jen commit z historie větve `main` (ověřuje
+  se přes GitHub API `compare/main...<sha>`) — GitHub zpřístupňuje přes
+  adresu repozitáře i commity z cizích forků, takže by jinak s uniklým
+  tokenem šlo nasadit cizí kód. Když API dotaz odmítne (limit 60 dotazů
+  za hodinu na IP), deploy skončí chybou a server zůstane beze změny.
 
 ### Prvotní zprovoznění
 
