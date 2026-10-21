@@ -3,7 +3,11 @@
 // outly-jan/skautska-burza. Po nahrání na server změň CHANGE_ME na náhodný řetězec.
 define('DEPLOY_SECRET', 'CHANGE_ME');
 
-if (($_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '') !== DEPLOY_SECRET) {
+// Nenastavený token (prázdný nebo výchozí CHANGE_ME z repozitáře) = webhook
+// vypnutý; jinak by prošel kdokoli, kdo zná veřejnou výchozí hodnotu.
+// hash_equals: porovnání v konstantním čase (bez časového útoku).
+$token = (string) ($_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '');
+if (DEPLOY_SECRET === '' || DEPLOY_SECRET === 'CHANGE_ME' || !hash_equals(DEPLOY_SECRET, $token)) {
     http_response_code(403);
     exit('Unauthorized');
 }
@@ -17,6 +21,27 @@ $ref = $_SERVER['HTTP_X_DEPLOY_SHA'] ?? '';
 if (!preg_match('/^[0-9a-f]{40}$/', $ref)) {
     $ref = 'main';
 }
+
+$api_context = stream_context_create([
+    'http' => ['header' => "User-Agent: skautska-burza-deploy\r\n"],
+]);
+
+// Nasadit jde jen commit z historie větve main. GitHub zpřístupňuje přes
+// adresu tohoto repozitáře i commity z cizích forků — bez téhle kontroly
+// by šlo s uniklým tokenem nasadit na server cizí kód.
+if ($ref !== 'main') {
+    $compare_json = @file_get_contents(
+        'https://api.github.com/repos/' . $repo . '/compare/main...' . $ref,
+        false,
+        $api_context
+    );
+    $compare = $compare_json ? json_decode($compare_json, true) : null;
+    if (!$compare || !in_array($compare['status'] ?? '', ['identical', 'behind'], true)) {
+        http_response_code(403);
+        exit('CHYBA: commit ' . $ref . ' není v historii větve main (nebo ho nešlo ověřit)');
+    }
+}
+
 $base_url = 'https://raw.githubusercontent.com/' . $repo . '/' . $ref . '/';
 $target   = __DIR__;
 $log      = [];
@@ -29,13 +54,10 @@ $skip_prefixes = ['.github/'];
 
 // Seznam souborů podle aktuálního obsahu repa (žádný natvrdo psaný seznam),
 // ať se s přibývajícími částmi pluginu nemusí tenhle skript ručně rozšiřovat.
-$tree_context = stream_context_create([
-    'http' => ['header' => "User-Agent: skautska-burza-deploy\r\n"],
-]);
 $tree_json = @file_get_contents(
     'https://api.github.com/repos/' . $repo . '/git/trees/' . $ref . '?recursive=1',
     false,
-    $tree_context
+    $api_context
 );
 $tree = $tree_json ? json_decode($tree_json, true) : null;
 
