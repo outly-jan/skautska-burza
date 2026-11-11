@@ -22,6 +22,7 @@ add_action( 'admin_menu', 'skaut_fb_admin_menu' );
 add_action( 'admin_init', 'skaut_fb_registrovat_nastaveni' );
 add_action( 'admin_post_skaut_fb_ziskat_token', 'skaut_fb_akce_ziskat_token' );
 add_action( 'admin_post_skaut_fb_test', 'skaut_fb_akce_test' );
+add_action( 'admin_post_skaut_fb_data', 'skaut_fb_akce_data' );
 
 // ── KONFIGURACE ───────────────────────────────────────────────────────
 
@@ -68,6 +69,16 @@ function skaut_fb_graph_get( string $cesta, array $parametry ) {
 	return $data;
 }
 
+function skaut_fb_graph_prispevky( string $stranka_id, int $pocet, string $token ) {
+	return skaut_fb_graph_get( $stranka_id . '/posts', [
+		'fields'       => 'id,message,story,parent_id,created_time,permalink_url,full_picture,'
+			. 'attachments{media_type,type,url,unshimmed_url,title,description,media,'
+			. 'subattachments.limit(50){media_type,type,url,media}}',
+		'limit'        => (string) $pocet,
+		'access_token' => $token,
+	] );
+}
+
 /**
  * Stáhne stránku (jméno, profilovka) a posledních $pocet příspěvků v normalizované podobě.
  */
@@ -86,13 +97,7 @@ function skaut_fb_stahnout( int $pocet ) {
 		return $stranka;
 	}
 
-	$prispevky = skaut_fb_graph_get( $stranka_id . '/posts', [
-		'fields'       => 'id,message,created_time,permalink_url,full_picture,'
-			. 'attachments{media_type,type,url,unshimmed_url,title,description,media,'
-			. 'subattachments.limit(50){media_type,type,url,media}}',
-		'limit'        => (string) $pocet,
-		'access_token' => $token,
-	] );
+	$prispevky = skaut_fb_graph_prispevky( $stranka_id, $pocet, $token );
 	if ( is_wp_error( $prispevky ) ) {
 		return $prispevky;
 	}
@@ -106,6 +111,17 @@ function skaut_fb_stahnout( int $pocet ) {
 		'prispevky' => [],
 	];
 	foreach ( (array) ( $prispevky['data'] ?? [] ) as $p ) {
+		// Sdílený příspěvek jiné stránky bez vlastního komentáře: text je jen
+		// v původním příspěvku. Když ho token smí přečíst, použije se; jinak nic.
+		if ( trim( (string) ( $p['message'] ?? '' ) ) === '' && ! empty( $p['parent_id'] ) ) {
+			$puvodni = skaut_fb_graph_get( (string) $p['parent_id'], [
+				'fields'       => 'message',
+				'access_token' => $token,
+			] );
+			if ( ! is_wp_error( $puvodni ) ) {
+				$p['skaut_puvodni_text'] = (string) ( $puvodni['message'] ?? '' );
+			}
+		}
 		$normalizovany = skaut_fb_normalizovat_prispevek( $p );
 		if ( $normalizovany['text'] !== '' || $normalizovany['media'] || $normalizovany['sdileni'] ) {
 			$vysledek['prispevky'][] = $normalizovany;
@@ -194,6 +210,9 @@ function skaut_fb_normalizovat_prispevek( array $p ): array {
 	// Sdílený příspěvek jiné stránky bez vlastního komentáře nemá message —
 	// jeho text je v popisu přílohy, zobrazí se jako citace.
 	$text   = trim( (string) ( $p['message'] ?? '' ) );
+	if ( $popis === '' ) {
+		$popis = trim( (string) ( $p['skaut_puvodni_text'] ?? '' ) );
+	}
 	$citace = $text === '' && $popis !== '';
 
 	return [
@@ -482,6 +501,30 @@ function skaut_fb_akce_ziskat_token(): void {
 	) );
 }
 
+/** Diagnostika: surová odpověď Graph API pro poslední příspěvky (bez tokenu). */
+function skaut_fb_akce_data(): void {
+	if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Nedostatečná oprávnění.' );
+	check_admin_referer( 'skaut_fb_data' );
+
+	$data = skaut_fb_graph_prispevky( skaut_fb_id_stranky(), 3, skaut_fb_token() );
+	if ( ! is_wp_error( $data ) ) {
+		unset( $data['paging'] );
+		foreach ( (array) ( $data['data'] ?? [] ) as $i => $p ) {
+			if ( ! empty( $p['parent_id'] ) ) {
+				$puvodni = skaut_fb_graph_get( (string) $p['parent_id'], [ 'fields' => 'message', 'access_token' => skaut_fb_token() ] );
+				$data['data'][ $i ]['puvodni_prispevek'] = is_wp_error( $puvodni ) ? $puvodni->get_error_message() : $puvodni;
+			}
+		}
+	}
+	$vypis = is_wp_error( $data ) ? $data->get_error_message() : wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+	// Podepsané adresy fotek a videí jsou dlouhé a pro diagnostiku zbytečné.
+	$vypis = preg_replace( '#"(https://[^"]*(fbcdn|facebook)[^"]*)"#', '"…"', (string) $vypis );
+
+	header( 'Content-Type: text/plain; charset=utf-8' );
+	echo $vypis; // phpcs:ignore WordPress.Security.EscapeOutput -- text/plain
+	exit;
+}
+
 function skaut_fb_akce_test(): void {
 	if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Nedostatečná oprávnění.' );
 	check_admin_referer( 'skaut_fb_test' );
@@ -549,6 +592,12 @@ function skaut_fb_render_nastaveni(): void {
 			<input type="hidden" name="action" value="skaut_fb_test">
 			<?php wp_nonce_field( 'skaut_fb_test' ); ?>
 			<?php submit_button( 'Otestovat spojení a vymazat cache', 'secondary', 'submit', false ); ?>
+		</form>
+
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" target="_blank" style="margin-top:8px">
+			<input type="hidden" name="action" value="skaut_fb_data">
+			<?php wp_nonce_field( 'skaut_fb_data' ); ?>
+			<?php submit_button( 'Diagnostika: surová data 3 posledních příspěvků', 'secondary', 'submit', false ); ?>
 		</form>
 
 		<hr>
