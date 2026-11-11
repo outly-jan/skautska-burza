@@ -1,0 +1,301 @@
+/* Příspěvky z Facebooku — [skaut_fb_prispevky] */
+
+.skaut-fb {
+	--skaut-fb-akcent: #4f6e5d;
+	--skaut-fb-tlumena: #6b7280;
+	--skaut-fb-oddelovac: #e8dcc0;
+	max-width: 680px;
+	margin: 0 auto;
+}
+
+.skaut-fb-prispevek {
+	padding: 1.25em 0;
+	border-bottom: 1px solid var(--skaut-fb-oddelovac);
+}
+
+.skaut-fb-prispevek:last-child {
+	border-bottom: 0;
+}
+
+.skaut-fb-hlavicka {
+	display: flex;
+	align-items: center;
+	gap: 0.75em;
+	margin-bottom: 0.75em;
+}
+
+.skaut-fb-avatar {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	object-fit: cover;
+	flex: none;
+}
+
+.skaut-fb-jmeno {
+	display: block;
+	font-weight: 600;
+	color: var(--skaut-fb-akcent);
+	text-decoration: none;
+}
+
+.skaut-fb-datum {
+	display: block;
+	font-size: 0.85em;
+	color: var(--skaut-fb-tlumena);
+	text-decoration: none;
+}
+
+.skaut-fb-jmeno:hover,
+.skaut-fb-datum:hover {
+	text-decoration: underline;
+}
+
+.skaut-fb-text {
+	line-height: 1.55;
+	overflow-wrap: anywhere;
+	margin-bottom: 0.9em;
+}
+
+.skaut-fb-text.je-zkraceny {
+	max-height: 10.5em;
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(#000 70%, transparent);
+	mask-image: linear-gradient(#000 70%, transparent);
+}
+
+.skaut-fb-vice {
+	display: inline-block;
+	margin: -0.5em 0 0.9em;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--skaut-fb-akcent);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.skaut-fb-vice:hover {
+	text-decoration: underline;
+}
+
+/* ── Fotky a videa ── */
+
+.skaut-fb-media {
+	display: grid;
+	gap: 4px;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 0.75em;
+}
+
+.skaut-fb-media-2 {
+	grid-template-columns: 1fr 1fr;
+}
+
+.skaut-fb-media-3 {
+	grid-template-columns: 1fr 1fr;
+}
+
+.skaut-fb-media-4 {
+	grid-template-columns: 1fr 1fr 1fr;
+}
+
+.skaut-fb-media-3 > :first-child,
+.skaut-fb-media-4 > :first-child {
+	grid-column: 1 / -1;
+}
+
+.skaut-fb-dlazdice {
+	position: relative;
+	display: block;
+	background: #1f2937;
+	overflow: hidden;
+}
+
+.skaut-fb-dlazdice[hidden] {
+	display: none;
+}
+
+.skaut-fb-dlazdice img,
+.skaut-fb-video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.25s ease;
+}
+
+.skaut-fb-dlazdice:hover img {
+	transform: scale(1.03);
+}
+
+/* Jediná fotka: celá, v původním poměru stran (rozumně omezená výška). */
+.skaut-fb-media-1 img,
+.skaut-fb-media-1 .skaut-fb-video {
+	height: auto;
+	max-height: 75vh;
+	object-fit: contain;
+	background: #111;
+}
+
+.skaut-fb-media-2 .skaut-fb-dlazdice,
+.skaut-fb-media-3 .skaut-fb-dlazdice,
+.skaut-fb-media-4 .skaut-fb-dlazdice {
+	aspect-ratio: 1;
+}
+
+.skaut-fb-media-3 > :first-child,
+.skaut-fb-media-4 > :first-child {
+	aspect-ratio: 16 / 10;
+}
+
+.skaut-fb-dlazdice.je-video::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 64px;
+	height: 64px;
+	margin: -32px 0 0 -32px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M8 5v14l11-7z'/%3E%3C/svg%3E") center / 34px no-repeat;
+	border: 2px solid #fff;
+	pointer-events: none;
+}
+
+.skaut-fb-dalsi {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.5);
+	color: #fff;
+	font-size: 2em;
+	font-weight: 600;
+}
+
+/* ── Sdílený odkaz ── */
+
+.skaut-fb-sdileni {
+	display: block;
+	border: 1px solid var(--skaut-fb-oddelovac);
+	border-radius: 8px;
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	margin-bottom: 0.75em;
+}
+
+.skaut-fb-sdileni img {
+	display: block;
+	width: 100%;
+	max-height: 320px;
+	object-fit: cover;
+}
+
+.skaut-fb-sdileni-text {
+	display: block;
+	padding: 0.6em 0.8em;
+	background: rgba(0, 0, 0, 0.03);
+}
+
+.skaut-fb-sdileni-text > * {
+	display: block;
+}
+
+.skaut-fb-sdileni-domena {
+	font-size: 0.8em;
+	text-transform: uppercase;
+	color: var(--skaut-fb-tlumena);
+}
+
+.skaut-fb-sdileni-popis {
+	font-size: 0.9em;
+	color: var(--skaut-fb-tlumena);
+}
+
+.skaut-fb-paticka {
+	text-align: right;
+	font-size: 0.85em;
+}
+
+.skaut-fb-paticka a {
+	color: var(--skaut-fb-tlumena);
+}
+
+.skaut-fb-chyba {
+	padding: 0.75em 1em;
+	border-left: 4px solid #d63638;
+	background: #fcf0f1;
+}
+
+/* ── Prohlížeč fotek ── */
+
+.skaut-fb-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.95);
+}
+
+.skaut-fb-lightbox[hidden] {
+	display: none;
+}
+
+.skaut-fb-lightbox-obsah img,
+.skaut-fb-lightbox-obsah video {
+	display: block;
+	max-width: 96vw;
+	max-height: 88vh;
+	object-fit: contain;
+}
+
+.skaut-fb-lightbox button {
+	position: absolute;
+	border: 0;
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	font-size: 28px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.skaut-fb-lightbox button:hover {
+	background: rgba(255, 255, 255, 0.25);
+}
+
+.skaut-fb-lightbox-zavrit {
+	top: 12px;
+	right: 12px;
+}
+
+.skaut-fb-lightbox-predchozi {
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.skaut-fb-lightbox-dalsi {
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.skaut-fb-lightbox-pocitadlo {
+	position: absolute;
+	bottom: 14px;
+	left: 0;
+	right: 0;
+	text-align: center;
+	color: #ddd;
+	font-size: 0.9em;
+}
