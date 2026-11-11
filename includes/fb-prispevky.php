@@ -153,6 +153,7 @@ function skaut_fb_polozka_media( array $priloha ): ?array {
 function skaut_fb_normalizovat_prispevek( array $p ): array {
 	$media   = [];
 	$sdileni = null;
+	$popis   = '';
 
 	foreach ( (array) ( $p['attachments']['data'] ?? [] ) as $priloha ) {
 		$podprilohy = (array) ( $priloha['subattachments']['data'] ?? [] );
@@ -179,6 +180,9 @@ function skaut_fb_normalizovat_prispevek( array $p ): array {
 			continue;
 		}
 
+		if ( $popis === '' ) {
+			$popis = trim( (string) ( $priloha['description'] ?? '' ) );
+		}
 		$polozka = skaut_fb_polozka_media( (array) $priloha );
 		if ( $polozka ) $media[] = $polozka;
 	}
@@ -187,9 +191,15 @@ function skaut_fb_normalizovat_prispevek( array $p ): array {
 		$media[] = [ 'typ' => 'foto', 'src' => (string) $p['full_picture'], 'w' => 0, 'h' => 0, 'video' => '', 'odkaz' => '' ];
 	}
 
+	// Sdílený příspěvek jiné stránky bez vlastního komentáře nemá message —
+	// jeho text je v popisu přílohy, zobrazí se jako citace.
+	$text   = trim( (string) ( $p['message'] ?? '' ) );
+	$citace = $text === '' && $popis !== '';
+
 	return [
 		'id'      => (string) ( $p['id'] ?? '' ),
-		'text'    => trim( (string) ( $p['message'] ?? '' ) ),
+		'text'    => $citace ? $popis : $text,
+		'citace'  => $citace,
 		'cas'     => strtotime( (string) ( $p['created_time'] ?? '' ) ) ?: 0,
 		'odkaz'   => (string) ( $p['permalink_url'] ?? '' ),
 		'media'   => $media,
@@ -278,7 +288,7 @@ function skaut_fb_render_prispevek( array $p, array $stranka ): string {
 		</header>
 
 		<?php if ( $p['text'] !== '' ) : ?>
-			<div class="skaut-fb-text"><?php echo skaut_fb_format_text( $p['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- escapováno uvnitř ?></div>
+			<div class="skaut-fb-text<?php echo empty( $p['citace'] ) ? '' : ' je-citace'; ?>"><?php echo skaut_fb_format_text( $p['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- escapováno uvnitř ?></div>
 		<?php endif; ?>
 
 		<?php echo skaut_fb_render_media( $p ); // phpcs:ignore WordPress.Security.EscapeOutput ?>

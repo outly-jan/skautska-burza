@@ -299,3 +299,9 @@
 	color: #ddd;
 	font-size: 0.9em;
 }
+
+/* Text sdíleného příspěvku jiné stránky */
+.skaut-fb-text.je-citace {
+	padding-left: 0.9em;
+	border-left: 3px solid var(--skaut-fb-oddelovac);
+}
