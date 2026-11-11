@@ -242,3 +242,26 @@ z větve několik minut v cache.
 > ho přes git, jinak se přepíše na `CHANGE_ME`. Webhook sám sebe nikdy
 > nestahuje, takže po každé změně jeho kódu je potřeba ho znovu ručně nahrát
 > na server.
+
+---
+
+## Příspěvky z Facebooku
+
+Náhrada pluginu Custom Facebook Feed. Shortcode `[skaut_fb_prispevky pocet="5"]`
+(max. 25) vypíše poslední příspěvky facebookové stránky střediska: text
+(dlouhý se zkrátí s tlačítkem „Zobrazit více“), fotky jako galerii
+(1 fotka v plné velikosti, víc fotek v mřížce s „+N“, kliknutím prohlížeč
+s šipkami, klávesnicí i swipem), videa nahraná na Facebook přímo
+přehrávatelná na webu a sdílené odkazy jako náhledovou kartu.
+
+- Kód: `includes/fb-prispevky.php`, `assets/css/fb-prispevky.css`,
+  `assets/js/fb-prispevky.js` — samostatný modul, jde vyjmout do vlastního pluginu.
+- Nastavení: **Nastavení → Facebook příspěvky** — ID stránky (výchozí
+  `231860936668964` = Skaut Chlumec), přístupový token stránky, interval
+  obnovy (výchozí 60 min). Tlačítko „Otestovat spojení a vymazat cache“.
+- Token: na stránce nastavení je návod a formulář, který z krátkodobého
+  uživatelského tokenu z Graph API Exploreru (+ ID a tajný klíč vlastní
+  FB aplikace) získá **trvalý token stránky**. ID a klíč aplikace se neukládají.
+- Data z Graph API (`/{stránka}/posts`) se drží v transientu; když Facebook
+  neodpoví, zobrazí se poslední úspěšně stažená verze. Chybu vidí jen
+  administrátor (na webu i v nastavení), návštěvník nevidí nic.

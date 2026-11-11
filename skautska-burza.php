@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: Skautská burza
- * Description: Burza použitého skautského oblečení a vybavení a nálezy z akcí. Středisko Chlumec nad Cidlinou.
- * Version: 1.1.7
+ * Description: Burza použitého skautského oblečení a vybavení, nálezy z akcí a příspěvky z facebookové stránky. Středisko Chlumec nad Cidlinou.
+ * Version: 1.2.0
  * Text Domain: skaut-burza
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'SKAUT_BURZA_VERSION', '1.1.7' );
+define( 'SKAUT_BURZA_VERSION', '1.2.0' );
 define( 'SKAUT_BURZA_FILE', __FILE__ );
 define( 'SKAUT_BURZA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SKAUT_BURZA_URL', plugin_dir_url( __FILE__ ) );
@@ -27,6 +27,7 @@ require_once SKAUT_BURZA_DIR . 'includes/cron.php';
 require_once SKAUT_BURZA_DIR . 'includes/admin.php';
 require_once SKAUT_BURZA_DIR . 'includes/privacy.php';
 require_once SKAUT_BURZA_DIR . 'includes/nalezy.php';
+require_once SKAUT_BURZA_DIR . 'includes/fb-prispevky.php';
 
 final class SkautBurza {
 
